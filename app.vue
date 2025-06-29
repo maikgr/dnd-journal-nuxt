@@ -141,7 +141,7 @@ const menuItems = [
   { name: 'HOME', path: '/' },
   { name: 'CHARS', path: '/chars' },
   { name: 'NPCS', path: '/npcs' },
-  { name: 'MAPS', path: '/maps' },
-  { name: 'SESSIONS', path: '/sessions' }
+  { name: 'MAP', path: '/map' },
+  { name: 'JOURNAL', path: '/journal' }
 ]
 </script>

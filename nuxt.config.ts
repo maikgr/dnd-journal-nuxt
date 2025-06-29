@@ -2,7 +2,32 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: [
+    '@nuxtjs/tailwindcss',
+    'nuxt-security'
+  ],
+  runtimeConfig: {
+    notionApiKey: process.env.NOTION_API_KEY,
+    notionDatabaseId: process.env.NOTION_DATABASE_ID,
+    notionMainPageId: process.env.NOTION_MAIN_PAGE_ID,
+    notionSessionPageId: process.env.NOTION_SESSION_PAGE_ID,
+    public: {
+      // Public runtime config goes here
+    }
+  },
+  security: {
+    headers: {
+      crossOriginEmbedderPolicy: 'unsafe-none',
+      contentSecurityPolicy: {
+        'img-src': ["'self'", 'data:', 'https://*.notion.so', 'https://*.amazonaws.com'],
+        'connect-src': ["'self'", 'https://api.notion.com']
+      }
+    },
+    rateLimiter: {
+      tokensPerInterval: 150,
+      interval: 'hour'
+    }
+  },
   app: {
     head: {
       title: 'D&D Journal',
