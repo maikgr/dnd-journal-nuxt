@@ -28,6 +28,9 @@ export default defineNuxtConfig({
       interval: 'hour'
     }
   },
+  css: [
+    '@fortawesome/fontawesome-svg-core/styles.css'
+  ],
   app: {
     head: {
       title: 'D&D Journal',
