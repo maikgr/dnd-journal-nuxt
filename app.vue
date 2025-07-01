@@ -8,7 +8,7 @@
         <nav class="mt-6">
           <ul class="flex justify-center gap-4 w-full max-w-3xl mx-auto">
             <li v-for="item in menuItems" :key="item.name" class="flex-1">
-              <NuxtLink :to="item.path" class="nier-button flex items-center w-full" :class="{ 'active': route.path === item.path }">
+              <NuxtLink :to="item.path" :prefetch="true" class="nier-button flex items-center w-full" :class="{ 'active': route.path === item.path }">
                 <div class="w-4 h-4 border border-[#454138] mr-3 flex-shrink-0"></div>
                 <span>{{ item.name }}</span>
               </NuxtLink>
@@ -23,6 +23,7 @@
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap');
+@import "tailwindcss";
 
 :root {
   --primary-color: #454138;

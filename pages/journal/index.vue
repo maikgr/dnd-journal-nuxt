@@ -1,6 +1,14 @@
 <script setup lang="ts">
-// Fetch journal entries directly using useFetch
-const { data: journalEntries, pending, error: fetchError } = await useFetch('/api/journal', {
+// Use definePageMeta to enable prefetching
+definePageMeta({
+  fetchKey: 'journal-entries'
+})
+
+// Fetch journal entries without blocking initial render
+const { data: journalEntries, pending, error: fetchError } = useFetch('/api/journal', {
+  key: 'journal-entries',
+  lazy: true, // Don't block initial render
+  server: false, // Start fetch on client to show loading state
   transform: (response) => {
     if (!response) return []
     
@@ -26,6 +34,9 @@ const sortedEntries = computed(() => {
     return b.day - a.day
   })
 })
+
+// Add a helper array for skeleton loading
+const skeletonCount = 4 // Number of skeleton items to show
 </script>
 
 <template>
@@ -33,8 +44,41 @@ const sortedEntries = computed(() => {
     <h1 class="text-3xl font-bold mb-8">Campaign Timeline</h1>
 
     <!-- Loading state -->
-    <div v-if="pending" class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
+    <div v-if="pending" class="relative">
+      <!-- Central timeline line -->
+      <div class="absolute left-1/2 -translate-x-1/2 h-full w-[2px] bg-[#bab5a1]"></div>
+
+      <!-- Skeleton loaders -->
+      <div class="space-y-8">
+        <div v-for="i in skeletonCount" :key="i" 
+             :class="[
+               'flex', 
+               i % 2 === 0 ? 'justify-end' : 'justify-start',
+               'w-full'
+             ]">
+          <div :class="[
+                 'w-[calc(50%-2rem)]',
+                 'bg-slate-100 rounded-lg p-6 shadow-sm',
+                 'animate-pulse'
+               ]">
+            <!-- Header skeleton -->
+            <div class="flex justify-between mb-4">
+              <div class="h-6 bg-slate-200 rounded w-24"></div>
+              <div class="h-6 bg-slate-200 rounded w-16"></div>
+            </div>
+            <!-- Content skeleton -->
+            <div class="space-y-3">
+              <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+              <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+            </div>
+            <!-- Tags skeleton -->
+            <div class="flex gap-2 mt-4">
+              <div class="h-6 bg-slate-200 rounded w-16"></div>
+              <div class="h-6 bg-slate-200 rounded w-16"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Error state -->
@@ -45,44 +89,51 @@ const sortedEntries = computed(() => {
     </div>
 
     <!-- Timeline -->
-    <div v-else-if="sortedEntries.length > 0" class="relative">
-      <!-- Central timeline line -->
-      <div class="absolute left-1/2 -translate-x-1/2 h-full w-[2px] bg-[#bab5a1]"></div>
+    <Transition name="fade" mode="out-in">
+      <div v-if="sortedEntries.length > 0" class="relative">
+        <!-- Central timeline line -->
+        <div class="absolute left-1/2 -translate-x-1/2 h-full w-[2px] bg-[#bab5a1]"></div>
 
-      <!-- Journal entries -->
-      <div class="space-y-8">
-        <JournalCard
-          v-for="(entry, index) in sortedEntries"
-          :key="entry.id"
-          :id="entry.id"
-          :day="entry.day"
-          :leap="entry.leap"
-          :summary="entry.summary"
-          :session="entry.session"
-          :characters="entry.characters"
-          :npcs="entry.npcs"
-          :locations="entry.locations"
-          :position="index % 2 === 0 ? 'left' : 'right'"
-        />
+        <!-- Journal entries -->
+        <div class="space-y-8">
+          <JournalCard
+            v-for="(entry, index) in sortedEntries"
+            :key="entry.id"
+            :id="entry.id"
+            :day="entry.day"
+            :leap="entry.leap"
+            :summary="entry.summary"
+            :session="entry.session"
+            :characters="entry.characters"
+            :npcs="entry.npcs"
+            :locations="entry.locations"
+            :position="index % 2 === 0 ? 'left' : 'right'"
+          />
+        </div>
       </div>
-    </div>
 
-    <!-- Empty state -->
-    <div v-else class="text-center py-12">
-      <p class="text-slate-500">No journal entries found.</p>
-    </div>
+      <!-- Empty state -->
+      <div v-else class="text-center py-12">
+        <p class="text-slate-500">No journal entries found.</p>
+      </div>
+    </Transition>
   </div>
 </template>
-
-<style>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-</style>
 
 <style scoped>
 /* Timeline styles */
 .relative {
   min-height: 100px;
+}
+
+/* Fade transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
