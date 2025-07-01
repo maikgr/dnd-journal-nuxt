@@ -8,4 +8,37 @@ export default {
     "./app.vue",
     "./error.vue"
   ],
+  theme: {
+    extend: {
+      colors: {
+        nier: {
+          // Main colors
+          primary: '#454138',    // Dark brown - used for text and borders
+          secondary: '#bab5a1',  // Light brown - used for buttons
+          surface: '#d1cdb7',    // Beige - used for background
+          grid: '#ccc8b1',       // Light beige - used for grid pattern
+          
+          // Semantic colors
+          'text-primary': '#454138',
+          'text-inverse': '#bab5a1',
+          'bg-primary': '#d1cdb7',
+          'bg-secondary': '#bab5a1',
+          'border': '#454138',
+          
+          // State variations
+          'hover': '#3c392f',
+          'active': '#524f45',
+          'disabled': '#a09c8d',
+        }
+      },
+      fontFamily: {
+        'nier': ['Rajdhani', 'sans-serif'],
+        'mono': ['Share Tech Mono', 'monospace'],
+      },
+      boxShadow: {
+        'nier': '3px 3px 0px rgba(0, 0, 0, 0.25)',
+      },
+    },
+  },
+  plugins: [],
 } 
