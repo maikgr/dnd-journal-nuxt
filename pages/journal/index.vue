@@ -40,9 +40,7 @@ const skeletonCount = 4 // Number of skeleton items to show
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Campaign Timeline</h1>
-
+  <div class="max-w-4xl mx-auto">
     <!-- Loading state -->
     <div v-if="pending" class="relative">
       <!-- Central timeline line -->
