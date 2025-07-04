@@ -99,9 +99,9 @@ h1, h2, h3, h4, h5, h6, .nier-button {
 const route = useRoute()
 const menuItems = [
   { name: 'HOME', path: '/', fwIcon: ['fas', 'house'] },
-  { name: 'CHARS', path: '/chars', fwIcon: ['fas', 'users'] },
+  { name: 'CHARS', path: '/characters', fwIcon: ['fas', 'users'] },
   { name: 'NPCS', path: '/npcs', fwIcon: ['fas', 'masks-theater'] },
   { name: 'MAP', path: '/map', fwIcon: ['fas', 'map'] },
-  { name: 'JOURNAL', path: '/journals', fwIcon: ['fas', 'book'] }
+  { name: 'LOG', path: '/journals', fwIcon: ['fas', 'book'] }
 ]
 </script>

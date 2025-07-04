@@ -13,10 +13,8 @@ export default {
       colors: {
         nier: {
           // Main colors
-          primary: '#454138',    // Dark brown - used for text and borders
-          secondary: '#bab5a1',  // Light brown - used for buttons
-          surface: '#d1cdb7',    // Beige - used for background
-          grid: '#ccc8b1',       // Light beige - used for grid pattern
+          primary: '#454138',    // Dark brown
+          secondary: '#bab5a1',  // Light brown
           
           // Semantic colors
           'text-primary': '#454138',

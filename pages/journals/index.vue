@@ -1,12 +1,12 @@
 <script setup lang="ts">
 // Use definePageMeta to enable prefetching
 definePageMeta({
-  fetchKey: 'journal-entries'
+  fetchKey: 'journals'
 })
 
 // Fetch journal entries without blocking initial render
 const { data: journalEntries, pending, error: fetchError } = useFetch('/api/journal', {
-  key: 'journal-entries',
+  key: 'journals',
   lazy: true, // Don't block initial render
   server: false, // Start fetch on client to show loading state
   transform: (response) => {

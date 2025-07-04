@@ -8,7 +8,8 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     notionApiKey: process.env.NOTION_API_KEY,
-    notionDatabaseId: process.env.NOTION_DATABASE_ID,
+    notionSessionsDatabaseId: process.env.NOTION_SESSIONS_DATABASE_ID,
+    notionCharactersDatabaseId: process.env.NOTION_CHARACTERS_DATABASE_ID,
     notionMainPageId: process.env.NOTION_MAIN_PAGE_ID,
     notionSessionPageId: process.env.NOTION_SESSION_PAGE_ID,
     public: {

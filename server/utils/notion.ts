@@ -4,7 +4,11 @@ import { createStorage } from 'unstorage'
 import fsDriver from 'unstorage/drivers/fs'
 
 let notionClient: Client | null = null
-const CACHE_KEY = 'journal-entries'
+const CACHE_KEY = {
+  JOURNALS: 'journals',
+  CHARACTERS: 'characters'
+}
+
 const CACHE_TTL = 1000 * 60 * 5 // 5 minutes
 
 interface CacheEntry {
@@ -33,7 +37,7 @@ export async function getJournalEntries() {
   
   try {
     // Try to get from cache first
-    const cached = await storage.getItem<CacheEntry>(CACHE_KEY)
+    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.JOURNALS)
     if (cached) {
       // Check if cache is still valid
       if (Date.now() - cached.timestamp < CACHE_TTL) {
@@ -43,7 +47,7 @@ export async function getJournalEntries() {
 
     // If no cache or expired, fetch from Notion
     const response = await notion.databases.query({
-      database_id: config.notionDatabaseId,
+      database_id: config.notionSessionsDatabaseId,
       sorts: [
         {
           property: 'Date',
@@ -57,14 +61,14 @@ export async function getJournalEntries() {
       data: response.results,
       timestamp: Date.now()
     }
-    await storage.setItem(CACHE_KEY, cacheEntry)
+    await storage.setItem(CACHE_KEY.JOURNALS, cacheEntry)
     
     return response.results
   } catch (error) {
     // If error occurs and we have cached data, return it as fallback
-    const cached = await storage.getItem<CacheEntry>(CACHE_KEY)
+    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.JOURNALS)
     if (cached) {
-      console.warn('Using cached data due to Notion API error')
+      console.warn('Using cached data for sessions due to Notion API error')
       return cached.data
     }
 
@@ -75,3 +79,41 @@ export async function getJournalEntries() {
     })
   }
 } 
+
+export async function getCharacters() {
+  const notion = getNotionClient()
+  const config = useRuntimeConfig()
+
+  try {
+    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.CHARACTERS)
+    if (cached) {
+      if (Date.now() - cached.timestamp < CACHE_TTL) {
+        return cached.data
+      }
+    }
+
+    const response = await notion.databases.query({
+      database_id: config.notionCharactersDatabaseId,
+    })
+
+    const cacheEntry: CacheEntry = {
+      data: response.results,
+      timestamp: Date.now()
+    }
+    await storage.setItem(CACHE_KEY.CHARACTERS, cacheEntry)
+
+    return response.results
+  } catch (error) {
+    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.CHARACTERS)
+    if (cached) {
+      console.warn('Using cached data for characters due to Notion API error')
+      return cached.data
+    }
+
+    console.error('Error fetching characters:', error)
+    throw createError({
+      statusCode: 500,
+      message: 'Failed to fetch characters database'
+    })
+  }
+}
