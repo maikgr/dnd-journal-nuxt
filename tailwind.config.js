@@ -22,6 +22,7 @@ export default {
           'bg-primary': '#d1cdb7',
           'bg-secondary': '#bab5a1',
           'border': '#454138',
+          'grid': '#ccc8b1',
           
           // State variations
           'hover': '#3c392f',

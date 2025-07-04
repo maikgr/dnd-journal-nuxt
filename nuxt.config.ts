@@ -6,6 +6,9 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     'nuxt-security'
   ],
+  tailwindcss: {
+    viewer: true
+  },
   runtimeConfig: {
     notionApiKey: process.env.NOTION_API_KEY,
     notionSessionsDatabaseId: process.env.NOTION_SESSIONS_DATABASE_ID,

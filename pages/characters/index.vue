@@ -54,7 +54,6 @@ watch(characters, (newCharacters) => {
         selectedCharacterId.value = newCharacters[0].id
     }
 }, { immediate: true })
-const debugPending = ref(true)
 </script>
 
 <template>
@@ -65,7 +64,7 @@ const debugPending = ref(true)
             <div class="w-1/3">
                 <div class="character-list-container">
                     <BlockList
-                        :pending="pending || debugPending"
+                        :pending="pending"
                         :error="fetchError?.message || null"
                         :items="characterListItems"
                         :selectedItemId="selectedCharacterId"
@@ -76,8 +75,8 @@ const debugPending = ref(true)
 
             <!-- Character Details -->
             <div class="w-2/3">
-                <div v-if="pending || debugPending" class="space-y-4">
-                    <SkeletonBlock v-for="i in 3" :key="i" ></SkeletonBlock>
+                <div v-if="pending" class="space-y-4">
+                    <SkeletonBlock :height="'h-96'" ></SkeletonBlock>
                 </div>
                 <div v-else-if="fetchError" class="text-red-500">
                     Error: {{ fetchError }}

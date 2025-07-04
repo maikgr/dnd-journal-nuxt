@@ -10,54 +10,44 @@ defineProps<Props>()
 </script>
 
 <template>
-    <NuxtLink :to="linkPath" :prefetch="true" class="nier-button flex items-center w-full" :class="{ 'active': isActive }">
+    <NuxtLink
+      :to="linkPath"
+      :prefetch="true"
+      class="nier-main-button bg-nier-secondary font-nier px-4 py-2 font-semibold flex items-center w-full uppercase min-w-32 relative overflow-hidden"
+      :class="{ 'active': isActive }">
         <font-awesome-icon v-if="fwIcon" :icon="fwIcon" class="w-4 h-4 mr-3 flex-shrink-0" />
         <span>{{ text }}</span>
     </NuxtLink>
 </template>
 
-<style>
-
-.nier-button {
-  background-color: var(--button-bg);
-  color: var(--text-color);
-  padding: 0.5rem 1rem;
-  text-transform: uppercase;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  min-width: 120px;
-  position: relative;
-  overflow: hidden;
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.15);
-}
-
-.nier-button::before {
+<style scoped>
+.nier-main-button::before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   height: 100%;
   width: 0;
-  background-color: var(--primary-color);
+  background-color: theme('colors.nier.primary');
   transition: width 0.2s ease-in-out;
   z-index: 0;
 }
 
-.nier-button:hover::before {
+.nier-main-button:hover::before {
   width: 100%;
 }
 
-.nier-button > * {
+.nier-main-button > * {
   position: relative;
   z-index: 1;
 }
 
-.nier-button:hover {
-  color: var(--button-bg);
+.nier-main-button:hover {
+  color: theme('colors.nier.secondary');
 }
 
-.nier-button.active {
-  background-color: var(--primary-color);
-  color: var(--button-bg);
+.nier-main-button.active {
+  background-color: theme('colors.nier.primary');
+  color: theme('colors.nier.secondary');
 }
 </style>
