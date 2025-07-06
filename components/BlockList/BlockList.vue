@@ -21,11 +21,11 @@ const emit = defineEmits<{
 const onClick = (id: string) => {
     emit('click', id);
 }
-const skeletonCount = 3;
+const skeletonCount = 6;
 </script>
 
 <template>
-    <div class="character-list-container">
+    <div class="bg-nier-bg-primary relative shadow-nier character-list-container">
         <div v-if="pending" class="space-y-4 p-4">
             <SkeletonBlock v-for="i in skeletonCount" :key="i"/>
         </div>
@@ -39,12 +39,8 @@ const skeletonCount = 3;
 </template>
 
 <style scoped>
-
 .character-list-container {
-    background-color: var(--bg-color);
-    border: 1px solid var(--primary-color);
-    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
-    position: relative;
+    border: 1px solid theme('colors.nier.border');
 }
 
 /* Corner decorations */

@@ -19,7 +19,8 @@ defineEmits<{
     <button
         v-for="item in items"
         :key="item.id"
-        class="character-list-item relative w-full text-left px-6 py-3 transition-all"
+        class="character-list-item bg-nier-bg-primary font-nier font-semibold relative my-2 mx-0
+        w-full text-left px-8 py-3 transition-all h-8 flex items-center overflow-visible"
         :class="{ 'selected': item.id === selectedItemId }"
         @click="$emit('click', item.id)"
     >
@@ -32,24 +33,13 @@ defineEmits<{
 </template>
 
 <style scoped>
-.character-list-item {
-    position: relative;
-    color: var(--text-color);
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    padding: 0 1rem 0 2rem;
-}
-
 .character-list-item:hover {
     background-color: rgba(69, 65, 56, 0.1);
 }
 
 .character-list-item.selected {
-    background-color: var(--primary-color);
-    color: var(--button-bg);
+    background-color: theme('colors.nier.primary');
+    color: theme('colors.nier.text-inverse');
     position: relative;
 }
 
@@ -59,8 +49,8 @@ defineEmits<{
     position: absolute;
     left: 0;
     right: 0;
-    height: 1px;
-    background-color: var(--primary-color);
+    height: 2px;
+    background-color: theme('colors.nier.primary');
     pointer-events: none;
 }
 
@@ -87,7 +77,7 @@ defineEmits<{
     width: 8px;
     height: 8px;
     transform: rotate(45deg);
-    background-color: var(--button-bg);
+    background-color: theme('colors.nier.secondary');
     position: relative;
 }
 
@@ -99,6 +89,6 @@ defineEmits<{
     transform: translate(-50%, -50%);
     width: 4px;
     height: 4px;
-    background-color: var(--primary-color);
+    background-color: theme('colors.nier.primary');
 }
 </style>
