@@ -174,9 +174,3 @@
   color: var(--primary-color);
 }
 </style>
-
-<script setup>
-const cardClasses = "bg-[#bab5a1] p-4 rounded border border-[#454138]"
-const statItemClasses = "p-3 bg-[#bab5a1] rounded border border-[#454138]"
-const readMoreClasses = "px-3 py-1 text-sm bg-[#d1cdb7] hover:bg-[#ccc8b1] rounded transition-colors"
-</script> 

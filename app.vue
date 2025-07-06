@@ -85,8 +85,8 @@ const route = useRoute()
 const menuItems = [
   { name: 'HOME', path: '/', fwIcon: ['fas', 'house'] },
   { name: 'CHARS', path: '/characters', fwIcon: ['fas', 'users'] },
-  { name: 'NPCS', path: '/npcs', fwIcon: ['fas', 'masks-theater'] },
+  { name: 'PEOPLE', path: '/people', fwIcon: ['fas', 'masks-theater'] },
   { name: 'MAP', path: '/map', fwIcon: ['fas', 'map'] },
-  { name: 'LOG', path: '/journals', fwIcon: ['fas', 'book'] }
+  { name: 'LOG', path: '/logs', fwIcon: ['fas', 'book'] }
 ]
 </script>
