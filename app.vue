@@ -87,6 +87,6 @@ const menuItems = [
   { name: 'CHARS', path: '/characters', fwIcon: ['fas', 'users'] },
   { name: 'PEOPLE', path: '/npcs', fwIcon: ['fas', 'masks-theater'] },
   { name: 'MAP', path: '/map', fwIcon: ['fas', 'map'] },
-  { name: 'LOG', path: '/logs', fwIcon: ['fas', 'book'] }
+  { name: 'LOG', path: '/journals', fwIcon: ['fas', 'book'] }
 ]
 </script>
