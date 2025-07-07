@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     notionCharactersDatabaseId: process.env.NOTION_CHARACTERS_DATABASE_ID,
     notionMainPageId: process.env.NOTION_MAIN_PAGE_ID,
     notionSessionPageId: process.env.NOTION_SESSION_PAGE_ID,
+    notionNpcPageId: process.env.NOTION_NPC_PAGE_ID,
     public: {
       // Public runtime config goes here
     }
