@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import { CACHE_KEY } from '~/server/utils/values'
 // Use definePageMeta to enable prefetching
 definePageMeta({
-  fetchKey: 'journals'
+  fetchKey: CACHE_KEY.JOURNALS
 })
 
 // Fetch journal entries without blocking initial render
 const { data: journalEntries, pending, error: fetchError } = useFetch('/api/journal', {
-  key: 'journals',
+  key: CACHE_KEY.JOURNALS,
   lazy: true, // Don't block initial render
   server: false, // Start fetch on client to show loading state
   transform: (response) => {
@@ -44,7 +45,7 @@ const skeletonCount = 4 // Number of skeleton items to show
     <!-- Loading state -->
     <div v-if="pending" class="relative">
       <!-- Central timeline line -->
-      <div class="absolute left-1/2 -translate-x-1/2 h-full w-[2px] bg-[#bab5a1]"></div>
+      <div class="absolute left-1/2 -translate-x-1/2 h-full w-[2px] bg-nier-secondary"></div>
 
       <!-- Skeleton loaders -->
       <div class="space-y-8">
@@ -56,23 +57,23 @@ const skeletonCount = 4 // Number of skeleton items to show
              ]">
           <div :class="[
                  'w-[calc(50%-2rem)]',
-                 'bg-slate-100 rounded-lg p-6 shadow-sm',
+                 'bg-nier-primary opacity-50 rounded',
                  'animate-pulse'
                ]">
             <!-- Header skeleton -->
             <div class="flex justify-between mb-4">
-              <div class="h-6 bg-slate-200 rounded w-24"></div>
-              <div class="h-6 bg-slate-200 rounded w-16"></div>
+              <div class="h-6 bg-nier-primary opacity-50 rounded w-24"></div>
+              <div class="h-6 bg-nier-primary opacity-50 rounded w-16"></div>
             </div>
             <!-- Content skeleton -->
             <div class="space-y-3">
-              <div class="h-4 bg-slate-200 rounded w-3/4"></div>
-              <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+              <div class="h-4 bg-nier-primary opacity-50 rounded w-3/4"></div>
+              <div class="h-4 bg-nier-primary opacity-50 rounded w-1/2"></div>
             </div>
             <!-- Tags skeleton -->
             <div class="flex gap-2 mt-4">
-              <div class="h-6 bg-slate-200 rounded w-16"></div>
-              <div class="h-6 bg-slate-200 rounded w-16"></div>
+              <div class="h-6 bg-nier-primary opacity-50 rounded w-16"></div>
+              <div class="h-6 bg-nier-primary opacity-50 rounded w-16"></div>
             </div>
           </div>
         </div>
@@ -82,7 +83,7 @@ const skeletonCount = 4 // Number of skeleton items to show
     <!-- Error state -->
     <div v-else-if="fetchError" class="bg-red-50 border border-red-200 rounded-md p-4 mb-8">
       <p class="text-red-800">
-        Failed to load journal entries. Please try again later.
+        Failed to load log entries. Please try again later.
       </p>
     </div>
 
@@ -90,7 +91,7 @@ const skeletonCount = 4 // Number of skeleton items to show
     <Transition name="fade" mode="out-in">
       <div v-if="sortedEntries.length > 0" class="relative">
         <!-- Central timeline line -->
-        <div class="absolute left-1/2 -translate-x-1/2 h-full w-[2px] bg-[#bab5a1]"></div>
+        <div class="absolute left-1/2 -translate-x-1/2 h-full w-[2px] bg-nier-secondary"></div>
 
         <!-- Journal entries -->
         <div class="space-y-8">
@@ -112,7 +113,7 @@ const skeletonCount = 4 // Number of skeleton items to show
 
       <!-- Empty state -->
       <div v-else class="text-center py-12">
-        <p class="text-slate-500">No journal entries found.</p>
+        <p class="text-nier-primary opacity-50">No journal entries found.</p>
       </div>
     </Transition>
   </div>

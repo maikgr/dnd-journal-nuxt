@@ -22,15 +22,15 @@ const hasDetails = computed(() => {
 <template>
   <div class="timeline-entry relative flex items-center" :class="position === 'left' ? 'justify-start' : 'justify-end'">
     <!-- Timeline dot -->
-    <div class="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#454138] border-4 border-[#d1cdb7]"></div>
+    <div class="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-nier-secondary border-4 border-nier-primary"></div>
 
     <!-- Entry card -->
     <div 
-      class="w-5/12 border border-[#454138]"
+      class="w-5/12 border border-nier-primary shadow-nier"
       :class="position === 'left' ? 'mr-auto' : 'ml-auto'"
     >
       <!-- Card Header -->
-      <div class="card-header">
+      <div class="bg-nier-primary text-nier-text-inverse px-4 py-2">
         <div class="text-2xl font-bold">
           Session {{ session }}
         </div>
@@ -40,38 +40,38 @@ const hasDetails = computed(() => {
       </div>
 
       <!-- Card Content -->
-      <div class="card-content">
-        <p class="text-[#454138] mb-4">{{ summary }}</p>
+      <div class="text-nier-primary px-4 py-2">
+        <p class="mb-4">{{ summary }}</p>
         
         <!-- Details Section -->
         <div v-if="hasDetails" class="mb-4">
           <button 
             @click="isExpanded = !isExpanded"
-            class="text-sm text-[#454138] hover:opacity-80 transition-opacity flex items-center gap-1"
+            class="text-sm text-nier-primary hover:opacity-80 transition-opacity flex items-center gap-1"
           >
             <span>{{ isExpanded ? 'Hide Details' : 'Show Details' }}</span>
             <span class="transform transition-transform" :class="{ 'rotate-180': isExpanded }">▼</span>
           </button>
           
-          <div v-if="isExpanded" class="mt-2 space-y-2 text-sm text-[#454138]">
-            <div v-if="characters?.length" class="detail-group">
-              <span class="detail-label">Characters:</span>
-              <span class="detail-content">{{ characters.join(', ') }}</span>
+          <div v-if="isExpanded" class="mt-2 space-y-2 text-sm text-nier-primary">
+            <div v-if="characters?.length" class="flex gap-2">
+              <span class="font-semibold min-w-20">Characters</span>
+              <span class="opacity-80">{{ characters.join(', ') }}</span>
             </div>
-            <div v-if="npcs?.length" class="detail-group">
-              <span class="detail-label">NPCs:</span>
-              <span class="detail-content">{{ npcs.join(', ') }}</span>
+            <div v-if="npcs?.length" class="flex gap-2">
+              <span class="font-semibold min-w-20">NPCs</span>
+              <span class="opacity-80">{{ npcs.join(', ') }}</span>
             </div>
-            <div v-if="locations?.length" class="detail-group">
-              <span class="detail-label">Locations:</span>
-              <span class="detail-content">{{ locations.join(', ') }}</span>
+            <div v-if="locations?.length" class="flex gap-2">
+              <span class="font-semibold min-w-20">Locations</span>
+              <span class="opacity-80">{{ locations.join(', ') }}</span>
             </div>
           </div>
         </div>
 
         <div class="flex justify-end">
           <NuxtLink :to="`/journal/${id}`" class="nier-button-small">
-            View session log
+            View Log
           </NuxtLink>
         </div>
       </div>
@@ -99,18 +99,6 @@ const hasDetails = computed(() => {
   left: 45.833333%;
 }
 
-.card-header {
-  background-color: #454138;
-  color: #bab5a1;
-  padding: 0.75rem 1rem;
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.25);
-}
-
-.card-content {
-  background-color: #d1cdb7;
-  padding: 1rem;
-}
-
 .nier-button-small {
   background-color: #bab5a1;
   color: #454138;
@@ -125,22 +113,6 @@ const hasDetails = computed(() => {
 .nier-button-small:hover {
   opacity: 0.9;
   transform: translateY(-1px);
-}
-
-.detail-group {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.detail-label {
-  font-weight: 600;
-  color: #454138;
-  min-width: 5rem;
-}
-
-.detail-content {
-  color: #454138;
-  opacity: 0.9;
 }
 
 /* Animation for expand/collapse */
