@@ -150,3 +150,39 @@ export async function getNpcs() {
     })
   }
 }
+
+export async function getLocations() {
+  const notion = getNotionClient()
+  const config = useRuntimeConfig()
+
+  try {
+    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.LOCATIONS)
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data;
+    }
+
+    const response = await notion.databases.query({
+      database_id: config.notionLocationDatabaseId,
+    })
+
+    const cacheEntry: CacheEntry = {
+      data: response.results,
+      timestamp: Date.now()
+    }
+    await storage.setItem(CACHE_KEY.LOCATIONS, cacheEntry)
+
+    return response.results
+  } catch (error) {
+    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.LOCATIONS)
+    if (cached) {
+      console.warn('Using cached data for locations due to Notion API error')
+      return cached.data
+    }
+
+    console.error('Error fetching locations:', error)
+    throw createError({
+      statusCode: 500,
+      message: 'Failed to fetch locations database'
+    })
+  }
+}

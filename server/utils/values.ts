@@ -1,5 +1,6 @@
 export const CACHE_KEY = {
     JOURNALS: 'journals',
     CHARACTERS: 'characters',
-    NPCS: 'npcs'
+    NPCS: 'npcs',
+    LOCATIONS: 'locations'
   }

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { BlockListItem } from './types';
 interface Props {
-    pending: boolean;
-    error: string | null;
+    pending?: boolean;
+    error?: string | null;
     items: BlockListItem[];
     selectedItemId: string | null;
 }
@@ -25,7 +25,7 @@ const skeletonCount = 6;
 </script>
 
 <template>
-    <div class="bg-nier-bg-primary relative shadow-nier character-list-container">
+    <div class="bg-nier-bg-primary relative shadow-nier border border-nier-border">
         <div v-if="pending" class="space-y-4 p-4">
             <SkeletonBlock v-for="i in skeletonCount" :key="i"/>
         </div>
@@ -39,10 +39,6 @@ const skeletonCount = 6;
 </template>
 
 <style scoped>
-.character-list-container {
-    border: 1px solid theme('colors.nier.border');
-}
-
 /* Corner decorations */
 .character-list-container::before,
 .character-list-container::after {
