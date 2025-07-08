@@ -186,3 +186,28 @@ export async function getLocations() {
     })
   }
 }
+
+export const getJournalById = async (id: string) => {
+  const notion = getNotionClient()
+  
+    try {
+        const response = await notion.pages.retrieve({
+            page_id: id
+        })
+
+        // Get the page content (blocks)
+        const blocks = await notion.blocks.children.list({
+            block_id: id,
+            page_size: 100,
+        })
+
+        return {
+            id: response.id,
+            properties: response,
+            content: blocks.results
+        }
+    } catch (error) {
+        console.error('Error fetching journal by ID:', error)
+        throw error
+    }
+}

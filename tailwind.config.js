@@ -31,8 +31,9 @@ export default {
         }
       },
       fontFamily: {
-        'nier': ['Rajdhani', 'sans-serif'],
-        'mono': ['Share Tech Mono', 'monospace'],
+        'nier': ['Rajdhani', 'sans-serif'],           // UI/Headers (existing)
+        'mono': ['Share Tech Mono', 'monospace'],      // Code/Data (existing)
+        'content': ['Inter', 'sans-serif'],           // Paragraphs
       },
       boxShadow: {
         'nier': '3px 3px 0px rgba(0, 0, 0, 0.25)',

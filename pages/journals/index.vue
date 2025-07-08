@@ -15,6 +15,7 @@ const { data: journalEntries, pending, error: fetchError } = useFetch('/api/jour
     
     return response.map((entry: any) => ({
       id: entry.id,
+      pageId: entry.properties?.PageID?.title?.[0]?.plain_text || '',
       date: entry.properties?.Date?.date?.start,
       summary: entry.properties?.Summary?.rich_text?.[0]?.plain_text || 'No summary available',
       leap: entry.properties?.Leap?.number || 0,
@@ -98,7 +99,7 @@ const skeletonCount = 4 // Number of skeleton items to show
           <JournalCard
             v-for="(entry, index) in sortedEntries"
             :key="entry.id"
-            :id="entry.id"
+            :id="entry.pageId"
             :day="entry.day"
             :leap="entry.leap"
             :summary="entry.summary"

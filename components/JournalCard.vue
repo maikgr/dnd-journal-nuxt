@@ -70,7 +70,7 @@ const hasDetails = computed(() => {
         </div>
 
         <div class="flex justify-end">
-          <NuxtLink :to="`/journal/${id}`" class="nier-button-small">
+          <NuxtLink :to="`/journals/${id}`" class="nier-button-small">
             View Log
           </NuxtLink>
         </div>
