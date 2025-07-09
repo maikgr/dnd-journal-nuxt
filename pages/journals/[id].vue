@@ -1,38 +1,127 @@
 <script setup lang="ts">
-interface JournalData {
-    id: string;
-    pageId: string;
-    date: string;
-    day: number;
-    leap: number;
-    session: number;
-    characters: string[];
-    npcs: string[];
-    locations: string[];
-    content: Array<{
-        type: string;
-        paragraph?: {
-            rich_text: Array<{
-                type: string;
-                text: {
-                    content: string;
-                    link: string | null;
-                },
-                plain_text: string;
-            }>;
-        };
-    }>;
-}
+import type { JournalContent } from '~/server/api/journals/types'
+import EntityTooltip from '~/components/Tooltips/EntityTooltip.vue'
 
 const route = useRoute()
 const id = route.params.id as string
 
+// Tooltip state
+const hoveredEntity = ref<string | null>(null)
+const currentTriggerRef = ref<HTMLElement | null>(null)
+
+const onMouseLeave = () => {
+    hoveredEntity.value = null
+    currentTriggerRef.value = null
+}
+
+const onClick = (element: EventTarget | null, entity: any) => {
+    if (entity?.id && element instanceof HTMLElement) {
+        hoveredEntity.value = entity.key
+        currentTriggerRef.value = element
+    }
+}
+
 // Single API call to get all journal data
-const { data: journal, pending, error } = await useFetch<JournalData>(`/api/journals/${id}`, {
+const { data: journal, pending, error } = await useFetch<JournalContent>(`/api/journals/${id}`, {
     key: `journal-${id}`,
     lazy: true,
     server: false
 })
+
+interface ProcessedSegment {
+    type: 'text' | 'entity';
+    text: string;
+    entity?: {
+        id: string;
+        key: string;
+        name: string;
+        type: string;
+        [key: string]: any;
+    };
+}
+
+interface ProcessedBlock {
+    type: string;
+    segments?: ProcessedSegment[];
+    [key: string]: any;
+}
+
+const content = computed(() => {
+    if (!journal.value) return []
+
+    // Create a regex pattern from entity names, escaping special characters
+    const entityNames = Object.keys(journal.value.entityMap)
+    const escapedNames = entityNames
+        .map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .sort((a, b) => b.length - a.length) // Sort by length descending to match longer names first
+    const entityPattern = new RegExp(`(${escapedNames.join('|')})`, 'gi') // Added 'i' flag for case-insensitive matching
+
+    const processedBlock = journal.value.content.map((block: any): ProcessedBlock => {
+        if (block.type === 'paragraph') {
+            // Process each rich text segment in the paragraph
+            const processedText = block.paragraph?.rich_text?.map((text: any) => {
+                const plainText = text.plain_text
+                // Split text by entity matches and wrap matches with span
+                let lastIndex = 0
+                const segments: ProcessedSegment[] = []
+                let match: RegExpExecArray | null = null
+                
+                // Reset lastIndex of regex for each new text
+                entityPattern.lastIndex = 0
+                
+                while ((match = entityPattern.exec(plainText)) !== null) {
+                    // Add text before match
+                    if (match.index > lastIndex) {
+                        segments.push({
+                            type: 'text',
+                            text: plainText.slice(lastIndex, match.index)
+                        })
+                    }
+                    
+                    // Find the correct case in entityMap
+                    const entityKey = entityNames.find(name => name.toLowerCase() === match?.[0]?.toLowerCase())
+                    
+                    // Add matched entity
+                    segments.push({
+                        type: 'entity',
+                        text: match[0],
+                        entity: entityKey ? {
+                           ...journal.value?.entityMap[entityKey],
+                           key: entityKey
+                         } : null
+                    })
+                    lastIndex = match.index + match[0].length
+                }
+                // Add remaining text
+                if (lastIndex < plainText.length) {
+                    segments.push({
+                        type: 'text',
+                        text: plainText.slice(lastIndex)
+                    })
+                }
+
+                return segments
+            }) || []
+
+            return {
+                type: 'paragraph',
+                segments: processedText.flat()
+            }
+        }
+        return block
+    })
+
+    return processedBlock
+})
+
+// Event handlers for tooltip
+const onMouseEnter = (element: EventTarget | null, entity: any) => {
+    if (entity?.id && element instanceof HTMLElement) {
+        hoveredEntity.value = entity.key
+        currentTriggerRef.value = element
+        console.log('hoveredEntity', hoveredEntity.value)
+    }
+}
 </script>
 
 <template>
@@ -72,16 +161,37 @@ const { data: journal, pending, error } = await useFetch<JournalData>(`/api/jour
             <div class="bg-nier-bg-primary border border-nier-primary p-6">
                 <h2 class="text-xl font-bold mb-4 font-nier">Content</h2>
                 <div class="space-y-4 font-content text-lg leading-relaxed">
-                    <div v-for="(block, index) in journal.content" :key="index">
+                    <div v-for="(block, index) in content" :key="index">
                         <!-- Paragraph -->
                         <div v-if="block.type === 'paragraph'" class="whitespace-pre-wrap font-alt-content text-lg leading-relaxed">
-                            <template v-for="(text, textIndex) in block.paragraph?.rich_text || []" :key="textIndex">
-                                <span>{{ text.plain_text }}</span>
+                            <template v-for="(segment, segmentIndex) in block.segments" :key="segmentIndex">
+                                <span 
+                                    v-if="segment.type === 'entity'" 
+                                    class="entity-link"
+                                    @mouseenter="onMouseEnter($event.target, segment.entity)"
+                                    @mouseleave="onMouseLeave"
+                                    @click="onClick($event.target, segment.entity)"
+                                >
+                                    {{ segment.text }}
+                                </span>
+                                <template v-else>{{ segment.text }}</template>
+
                             </template>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Tooltip -->
+            <EntityTooltip
+                v-if="hoveredEntity"
+                :name="journal?.entityMap[hoveredEntity]?.name"
+                :char-class="journal?.entityMap[hoveredEntity]?.class"
+                :occupation="journal?.entityMap[hoveredEntity]?.occupation"
+                :species="journal?.entityMap[hoveredEntity]?.species"
+                :flavor="journal?.entityMap[hoveredEntity]?.flavor"
+                :trigger-ref="currentTriggerRef"
+            />
 
             <!-- Back button -->
             <div class="flex justify-end">
@@ -111,5 +221,10 @@ const { data: journal, pending, error } = await useFetch<JournalData>(`/api/jour
 .nier-button-small:hover {
     opacity: 0.9;
     transform: translateY(-1px);
+}
+
+.entity-link {
+    border-bottom: 1px dotted theme('colors.nier.primary');
+    cursor: help;
 }
 </style> 

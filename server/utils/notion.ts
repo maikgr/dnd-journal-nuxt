@@ -2,14 +2,15 @@ import { Client } from '@notionhq/client'
 import { useRuntimeConfig } from '#imports'
 import { createStorage } from 'unstorage'
 import { CACHE_KEY } from './values'
+import type { NotionResponse } from './types'
 import fsDriver from 'unstorage/drivers/fs'
 
 let notionClient: Client | null = null
 
 const CACHE_TTL = 1000 * 60 * 5 // 5 minutes
 
-interface CacheEntry {
-  data: any[]
+interface CacheEntry<T> {
+  data: T
   timestamp: number
 }
 
@@ -34,7 +35,7 @@ export async function getJournalEntries() {
   
   try {
     // Try to get from cache first
-    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.JOURNALS)
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.JOURNALS)
     if (cached) {
       // Check if cache is still valid
       if (Date.now() - cached.timestamp < CACHE_TTL) {
@@ -54,7 +55,7 @@ export async function getJournalEntries() {
     })
     
     // Cache the new results
-    const cacheEntry: CacheEntry = {
+    const cacheEntry: CacheEntry<NotionResponse[]> = {
       data: response.results,
       timestamp: Date.now()
     }
@@ -63,7 +64,7 @@ export async function getJournalEntries() {
     return response.results
   } catch (error) {
     // If error occurs and we have cached data, return it as fallback
-    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.JOURNALS)
+    const cached = await storage.getItem<CacheEntry<NotionResponse[]>>(CACHE_KEY.JOURNALS)
     if (cached) {
       console.warn('Using cached data for sessions due to Notion API error')
       return cached.data
@@ -81,27 +82,33 @@ export async function getCharacters() {
   const notion = getNotionClient()
   const config = useRuntimeConfig()
 
+  const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.CHARACTERS)
   try {
-    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.CHARACTERS)
-    if (cached) {
-      if (Date.now() - cached.timestamp < CACHE_TTL) {
-        return cached.data
-      }
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data
     }
 
     const response = await notion.databases.query({
       database_id: config.notionCharactersDatabaseId,
     })
 
-    const cacheEntry: CacheEntry = {
+    const cacheEntry: CacheEntry<any[]> = {
       data: response.results,
       timestamp: Date.now()
     }
     await storage.setItem(CACHE_KEY.CHARACTERS, cacheEntry)
 
+    // Also cache each character individually
+    for (const char of response.results) {
+      const charCacheEntry: CacheEntry<any> = {
+        data: char,
+        timestamp: Date.now()
+      }
+      await storage.setItem(`${CACHE_KEY.CHARACTERS}-${char.id}`, charCacheEntry)
+    }
+
     return response.results
   } catch (error) {
-    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.CHARACTERS)
     if (cached) {
       console.warn('Using cached data for characters due to Notion API error')
       return cached.data
@@ -115,12 +122,47 @@ export async function getCharacters() {
   }
 }
 
+export async function getCharacterById(id: string) {
+  const notion = getNotionClient()
+  
+  const cached = await storage.getItem<CacheEntry<any>>(`${CACHE_KEY.CHARACTERS}-${id}`)
+  try {
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data
+    }
+
+    const response = await notion.pages.retrieve({
+      page_id: id,
+    })
+    
+    const cacheEntry: CacheEntry<any> = {
+      data: response,
+      timestamp: Date.now()
+    }
+    await storage.setItem(`${CACHE_KEY.CHARACTERS}-${id}`, cacheEntry)
+
+    return response
+  }
+  catch (error) {
+    if (cached) {
+      console.warn('Using cached data for character due to Notion API error')
+      return cached.data
+    }
+
+    console.error('Error fetching character by ID:', error)
+    throw createError({
+      statusCode: 500,
+      message: 'Failed to fetch character by ID'
+    })
+  }
+}
+
 export async function getNpcs() {
   const notion = getNotionClient()
   const config = useRuntimeConfig()
 
   try {
-    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.NPCS)
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.NPCS)
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
       return cached.data
     }
@@ -129,7 +171,7 @@ export async function getNpcs() {
       database_id: config.notionNpcPageId,
     })
 
-    const cacheEntry: CacheEntry = {
+    const cacheEntry: CacheEntry<any[]> = {
       data: response.results,
       timestamp: Date.now()
     }
@@ -137,7 +179,7 @@ export async function getNpcs() {
 
     return response.results
   } catch (error) {
-    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.NPCS)
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.NPCS)
     if (cached) {
       console.warn('Using cached data for NPCs due to Notion API error')
       return cached.data
@@ -156,7 +198,7 @@ export async function getLocations() {
   const config = useRuntimeConfig()
 
   try {
-    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.LOCATIONS)
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.LOCATIONS)
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
       return cached.data;
     }
@@ -165,7 +207,7 @@ export async function getLocations() {
       database_id: config.notionLocationDatabaseId,
     })
 
-    const cacheEntry: CacheEntry = {
+    const cacheEntry: CacheEntry<any[]> = {
       data: response.results,
       timestamp: Date.now()
     }
@@ -173,7 +215,7 @@ export async function getLocations() {
 
     return response.results
   } catch (error) {
-    const cached = await storage.getItem<CacheEntry>(CACHE_KEY.LOCATIONS)
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.LOCATIONS)
     if (cached) {
       console.warn('Using cached data for locations due to Notion API error')
       return cached.data
@@ -210,4 +252,39 @@ export const getJournalById = async (id: string) => {
         console.error('Error fetching journal by ID:', error)
         throw error
     }
+}
+
+export const getEntityAlias = async () => {
+  const notion = getNotionClient()
+  const config = useRuntimeConfig()
+
+  try {
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.ENTITY_ALIAS)
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data
+    }
+
+    const response = await notion.databases.query({
+      database_id: config.notionEntityAliasDatabaseId,
+    })
+    const cacheEntry: CacheEntry<any[]> = {
+      data: response.results,
+      timestamp: Date.now()
+    }
+    await storage.setItem(CACHE_KEY.ENTITY_ALIAS, cacheEntry)
+
+    return response.results
+  } catch (error) {
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.ENTITY_ALIAS)
+    if (cached) {
+      console.warn('Using cached data for entity alias due to Notion API error')
+      return cached.data
+    }
+
+    console.error('Error fetching entity alias:', error)
+    throw createError({
+      statusCode: 500,
+      message: 'Failed to fetch entity alias database'
+    })
+  }
 }

@@ -1,7 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
+
+    timeline: {
+      enabled: true
+    }
+  },
   modules: [
     '@nuxtjs/tailwindcss',
     'nuxt-security'
@@ -17,6 +23,7 @@ export default defineNuxtConfig({
     notionSessionPageId: process.env.NOTION_SESSION_PAGE_ID,
     notionNpcPageId: process.env.NOTION_NPC_PAGE_ID,
     notionLocationDatabaseId: process.env.NOTION_LOCATION_DATABASE_ID,
+    notionEntityAliasDatabaseId: process.env.NOTION_ENTITY_ALIAS_DATABASE_ID,
     public: {
       // Public runtime config goes here
     }
