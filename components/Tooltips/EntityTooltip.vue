@@ -11,6 +11,10 @@ interface Props {
     triggerRef?: HTMLElement | null
 }
 
+const emit = defineEmits<{
+    close: []
+}>()
+
 const props = defineProps<Props>()
 const isPinned = ref(false)
 const tooltipRef = ref<HTMLElement | null>(null)
@@ -59,6 +63,7 @@ const onClick = () => {
 
 const onClose = () => {
     isPinned.value = false
+    emit('close')
 }
 
 // Click outside handler
@@ -68,6 +73,7 @@ const onClickOutside = (event: MouseEvent) => {
     const target = event.target as HTMLElement
     if (!tooltipRef.value?.contains(target) && !props.triggerRef?.contains(target)) {
         isPinned.value = false
+        emit('close')
     }
 }
 
@@ -102,6 +108,7 @@ watch(() => props.triggerRef, () => {
                     left: `${position.x}px`,
                     top: `${position.y}px`
                 }"
+                @click="onClick"
             >
                 <div class="tooltip-content">
                     <CharacterTooltips
@@ -114,7 +121,7 @@ watch(() => props.triggerRef, () => {
                     <button
                         v-if="isPinned"
                         class="close-button"
-                        @click="onClose"
+                        @click.stop="onClose"
                     >
                         <font-awesome-icon icon="fa-solid fa-xmark" />
                     </button>

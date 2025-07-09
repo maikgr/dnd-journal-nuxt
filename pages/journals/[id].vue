@@ -8,18 +8,59 @@ const id = route.params.id as string
 // Tooltip state
 const hoveredEntity = ref<string | null>(null)
 const currentTriggerRef = ref<HTMLElement | null>(null)
+const isPinned = ref(false)
+
+// Event handlers for tooltip
+const onMouseEnter = (element: EventTarget | null, entity: any) => {
+    if (entity?.id && element instanceof HTMLElement) {
+        if (!isPinned.value) {
+            hoveredEntity.value = entity.key
+            currentTriggerRef.value = element
+        }
+    }
+}
 
 const onMouseLeave = () => {
-    hoveredEntity.value = null
-    currentTriggerRef.value = null
+    if (!isPinned.value) {
+        hoveredEntity.value = null
+        currentTriggerRef.value = null
+    }
 }
 
 const onClick = (element: EventTarget | null, entity: any) => {
     if (entity?.id && element instanceof HTMLElement) {
         hoveredEntity.value = entity.key
         currentTriggerRef.value = element
+        isPinned.value = true
     }
 }
+
+// Handle tooltip close
+const onTooltipClose = () => {
+    isPinned.value = false
+    hoveredEntity.value = null
+    currentTriggerRef.value = null
+}
+
+// Handle click outside
+const onClickOutside = (event: MouseEvent) => {
+    if (!isPinned.value) return
+    
+    const target = event.target as HTMLElement
+    if (!currentTriggerRef.value?.contains(target)) {
+        isPinned.value = false
+        hoveredEntity.value = null
+        currentTriggerRef.value = null
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', onClickOutside)
+})
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', onClickOutside)
+})
 
 // Single API call to get all journal data
 const { data: journal, pending, error } = await useFetch<JournalContent>(`/api/journals/${id}`, {
@@ -113,15 +154,6 @@ const content = computed(() => {
 
     return processedBlock
 })
-
-// Event handlers for tooltip
-const onMouseEnter = (element: EventTarget | null, entity: any) => {
-    if (entity?.id && element instanceof HTMLElement) {
-        hoveredEntity.value = entity.key
-        currentTriggerRef.value = element
-        console.log('hoveredEntity', hoveredEntity.value)
-    }
-}
 </script>
 
 <template>
@@ -186,11 +218,12 @@ const onMouseEnter = (element: EventTarget | null, entity: any) => {
             <EntityTooltip
                 v-if="hoveredEntity"
                 :name="journal?.entityMap[hoveredEntity]?.name"
-                :char-class="journal?.entityMap[hoveredEntity]?.class"
+                :char-class="journal?.entityMap[hoveredEntity]?.charClass"
                 :occupation="journal?.entityMap[hoveredEntity]?.occupation"
                 :species="journal?.entityMap[hoveredEntity]?.species"
                 :flavor="journal?.entityMap[hoveredEntity]?.flavor"
                 :trigger-ref="currentTriggerRef"
+                @close="onTooltipClose"
             />
 
             <!-- Back button -->
