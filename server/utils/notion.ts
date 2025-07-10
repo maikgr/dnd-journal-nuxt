@@ -24,6 +24,17 @@ export function getNotionClient() {
     const config = useRuntimeConfig()
     notionClient = new Client({
       auth: config.notionApiKey,
+      fetch: (url, init) => {
+        // Bind fetch to the global context
+        return fetch(url, {
+          ...init,
+          // Ensure headers are properly merged
+          headers: {
+            ...init?.headers,
+            'Notion-Version': '2025-07-01', // Include the Notion API version
+          }
+        })
+      }
     })
   }
   return notionClient
