@@ -84,6 +84,7 @@ interface ProcessedSegment {
 interface ProcessedBlock {
     type: string;
     segments?: ProcessedSegment[];
+    text?: string; // For simple text blocks like bullet points
     [key: string]: any;
 }
 
@@ -97,56 +98,63 @@ const content = computed(() => {
         .sort((a, b) => b.length - a.length) // Sort by length descending to match longer names first
     const entityPattern = new RegExp(`(${escapedNames.join('|')})`, 'gi') // Added 'i' flag for case-insensitive matching
 
+    const processText = (richText: any[]): ProcessedSegment[] => {
+        const segments: ProcessedSegment[] = []
+        richText.forEach(text => {
+            const plainText = text.plain_text
+            // Split text by entity matches and wrap matches with span
+            let lastIndex = 0
+            let match: RegExpExecArray | null = null
+            
+            // Reset lastIndex of regex for each new text
+            entityPattern.lastIndex = 0
+            
+            while ((match = entityPattern.exec(plainText)) !== null) {
+                // Add text before match
+                if (match.index > lastIndex) {
+                    segments.push({
+                        type: 'text',
+                        text: plainText.slice(lastIndex, match.index)
+                    })
+                }
+                
+                // Find the correct case in entityMap
+                const entityKey = entityNames.find(name => name.toLowerCase() === match?.[0]?.toLowerCase())
+                
+                // Add matched entity
+                segments.push({
+                    type: 'entity',
+                    text: match[0],
+                    entity: entityKey ? {
+                       ...journal.value?.entityMap[entityKey],
+                       key: entityKey
+                     } : null
+                })
+                lastIndex = match.index + match[0].length
+            }
+            // Add remaining text
+            if (lastIndex < plainText.length) {
+                segments.push({
+                    type: 'text',
+                    text: plainText.slice(lastIndex)
+                })
+            }
+        })
+        return segments
+    }
+
     const processedBlock = journal.value.content.map((block: any): ProcessedBlock => {
         if (block.type === 'paragraph') {
             // Process each rich text segment in the paragraph
-            const processedText = block.paragraph?.rich_text?.map((text: any) => {
-                const plainText = text.plain_text
-                // Split text by entity matches and wrap matches with span
-                let lastIndex = 0
-                const segments: ProcessedSegment[] = []
-                let match: RegExpExecArray | null = null
-                
-                // Reset lastIndex of regex for each new text
-                entityPattern.lastIndex = 0
-                
-                while ((match = entityPattern.exec(plainText)) !== null) {
-                    // Add text before match
-                    if (match.index > lastIndex) {
-                        segments.push({
-                            type: 'text',
-                            text: plainText.slice(lastIndex, match.index)
-                        })
-                    }
-                    
-                    // Find the correct case in entityMap
-                    const entityKey = entityNames.find(name => name.toLowerCase() === match?.[0]?.toLowerCase())
-                    
-                    // Add matched entity
-                    segments.push({
-                        type: 'entity',
-                        text: match[0],
-                        entity: entityKey ? {
-                           ...journal.value?.entityMap[entityKey],
-                           key: entityKey
-                         } : null
-                    })
-                    lastIndex = match.index + match[0].length
-                }
-                // Add remaining text
-                if (lastIndex < plainText.length) {
-                    segments.push({
-                        type: 'text',
-                        text: plainText.slice(lastIndex)
-                    })
-                }
-
-                return segments
-            }) || []
-
             return {
                 type: 'paragraph',
-                segments: processedText.flat()
+                segments: processText(block.paragraph?.rich_text || [])
+            }
+        } else if (block.type === 'bulleted_list_item') {
+            // Process bulleted list items
+            return {
+                type: 'bulleted_list_item',
+                segments: processText(block.bulleted_list_item?.rich_text || [])
             }
         }
         return block
@@ -207,8 +215,25 @@ const content = computed(() => {
                                     {{ segment.text }}
                                 </span>
                                 <template v-else>{{ segment.text }}</template>
-
                             </template>
+                        </div>
+                        <!-- Bullet Point -->
+                        <div v-else-if="block.type === 'bulleted_list_item'" class="whitespace-pre-wrap font-alt-content text-lg leading-relaxed pl-4 flex">
+                            <span class="mr-2">•</span>
+                            <div>
+                                <template v-for="(segment, segmentIndex) in block.segments" :key="segmentIndex">
+                                    <span 
+                                        v-if="segment.type === 'entity'" 
+                                        class="entity-link"
+                                        @mouseenter="onMouseEnter($event.target, segment.entity)"
+                                        @mouseleave="onMouseLeave"
+                                        @click="onClick($event.target, segment.entity)"
+                                    >
+                                        {{ segment.text }}
+                                    </span>
+                                    <template v-else>{{ segment.text }}</template>
+                                </template>
+                            </div>
                         </div>
                     </div>
                 </div>
