@@ -1,4 +1,4 @@
-# wrangler.toml (wrangler v3.88.0^)
+name = "dndjournal"# wrangler.toml (wrangler v3.88.0^)
 [observability.logs]
 enabled = true
 
