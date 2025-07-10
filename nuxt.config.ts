@@ -44,7 +44,10 @@ export default defineNuxtConfig({
       crossOriginEmbedderPolicy: 'unsafe-none',
       contentSecurityPolicy: {
         'img-src': ["'self'", 'data:', 'https://*.notion.so', 'https://*.amazonaws.com'],
-        'connect-src': ["'self'", 'https://api.notion.com']
+        'connect-src': ["'self'", 'https://api.notion.com', 'https://chronofell.com', 'https://www.chronofell.com'],
+        'default-src': ["'self'", 'https://chronofell.com', 'https://www.chronofell.com'],
+        'font-src': ["'self'", 'https://fonts.gstatic.com'],
+        'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com']
       }
     },
     rateLimiter: {
@@ -61,7 +64,14 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'A D&D campaign journal by Lyrial Chronofell' }
+        { name: 'description', content: 'A D&D campaign journal by Lyrial Chronofell' },
+        { property: 'og:title', content: 'D&D Journal - Lyrial Chronofell' },
+        { property: 'og:description', content: 'A D&D campaign journal by Lyrial Chronofell' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:url', content: 'https://chronofell.com' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'D&D Journal - Lyrial Chronofell' },
+        { name: 'twitter:description', content: 'A D&D campaign journal by Lyrial Chronofell' }
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
