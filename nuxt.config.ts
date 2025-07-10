@@ -6,6 +6,11 @@ export default defineNuxtConfig({
     cloudflare: {
       deployConfig: true,
       nodeCompat: true
+    },
+    storage: {
+      cache: {
+        driver: 'memory'  // Use memory driver for cache
+      }
     }
   },
   devtools: {

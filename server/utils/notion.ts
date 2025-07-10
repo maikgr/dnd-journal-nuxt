@@ -3,7 +3,7 @@ import { useRuntimeConfig } from '#imports'
 import { createStorage } from 'unstorage'
 import { CACHE_KEY } from './values'
 import type { NotionResponse } from './types'
-import fsDriver from 'unstorage/drivers/fs'
+import memoryDriver from 'unstorage/drivers/memory'
 
 let notionClient: Client | null = null
 
@@ -14,9 +14,9 @@ interface CacheEntry<T> {
   timestamp: number
 }
 
-// Initialize storage
+// Initialize storage with memory driver which works everywhere
 const storage = createStorage({
-  driver: fsDriver({ base: './.cache' })
+  driver: memoryDriver()
 })
 
 export function getNotionClient() {
