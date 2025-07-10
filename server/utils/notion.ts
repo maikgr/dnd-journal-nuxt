@@ -31,7 +31,7 @@ export function getNotionClient() {
           // Ensure headers are properly merged
           headers: {
             ...init?.headers,
-            'Notion-Version': '2025-07-01', // Include the Notion API version
+            'Notion-Version': '2022-06-28', // Use stable version
           }
         })
       }
@@ -93,11 +93,22 @@ export async function getCharacters() {
   const notion = getNotionClient()
   const config = useRuntimeConfig()
 
+  if (!config.notionCharactersDatabaseId) {
+    throw createError({
+      statusCode: 500,
+      message: 'Notion Characters Database ID is not configured'
+    })
+  }
+
   const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.CHARACTERS)
   try {
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
       return cached.data
     }
+
+    console.log('Fetching characters from Notion:', {
+      databaseId: config.notionCharactersDatabaseId
+    })
 
     const response = await notion.databases.query({
       database_id: config.notionCharactersDatabaseId,
@@ -119,17 +130,21 @@ export async function getCharacters() {
     }
 
     return response.results
-  } catch (error) {
+  } catch (error: any) {
+    console.error('Notion API Error in getCharacters:', {
+      message: error.message,
+      code: error.code,
+      status: error.status,
+      body: error.body,
+      databaseId: config.notionCharactersDatabaseId
+    })
+
     if (cached) {
       console.warn('Using cached data for characters due to Notion API error')
       return cached.data
     }
 
-    console.error('Error fetching characters:', error)
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to fetch characters database'
-    })
+    throw error
   }
 }
 
