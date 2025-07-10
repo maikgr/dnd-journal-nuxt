@@ -1,78 +1,63 @@
 <script setup lang="ts">
 interface Props {
   id: string
-  day: number
-  leap: number
   summary: string
-  session: number
-  position?: 'left' | 'right'
   characters?: string[]
   npcs?: string[]
   locations?: string[]
+  isCurrent?: boolean
+  leap: number
+  day: number
 }
 
 const props = defineProps<Props>()
-const isExpanded = ref(false)
 
 const hasDetails = computed(() => {
   return (props.characters?.length || 0) + (props.npcs?.length || 0) + (props.locations?.length || 0) > 0
 })
+
+const formatList = (items?: string[]) => {
+  if (!items?.length) return 'None'
+  return items.join(', ')
+}
 </script>
 
 <template>
-  <div class="timeline-entry relative flex items-center" :class="position === 'left' ? 'justify-start' : 'justify-end'">
-    <!-- Timeline dot -->
-    <div class="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-nier-secondary border-4 border-nier-primary"></div>
+  <div class="min-h-[400px] h-[calc(100vh-24rem)] max-h-[600px] bg-nier-bg-primary border border-nier-primary flex flex-col overflow-hidden shadow-nier hover:shadow-nier-lg transition-shadow duration-300">
+    <!-- Header -->
+    <div class="bg-nier-primary px-4 py-2 border-b border-nier-primary">
+      <span class="text-sm font-mono text-nier-bg-primary">Timeline {{ leap }} • Day {{ day }}</span>
+    </div>
 
-    <!-- Entry card -->
-    <div 
-      class="w-5/12 border border-nier-primary shadow-nier"
-      :class="position === 'left' ? 'mr-auto' : 'ml-auto'"
-    >
-      <!-- Card Header -->
-      <div class="bg-nier-primary text-nier-text-inverse px-4 py-2">
-        <div class="text-2xl font-bold">
-          Session {{ session }}
-        </div>
-        <div class="text-sm opacity-80">
-          Day {{ day }} - Time Leap {{ leap }}
-        </div>
+    <!-- Content -->
+    <div class="flex-1 flex flex-col p-4 min-h-0">
+      <!-- Summary -->
+      <div class="flex-1 overflow-hidden">
+        <template v-if="isCurrent">
+          <NuxtLink :to="`/journals/${id}`" class="block group">
+            <p class="text-base line-clamp-[16] group-hover:scale-[1.01] transition-transform duration-300">{{ summary }}</p>
+          </NuxtLink>
+        </template>
+        <template v-else>
+          <p class="text-base line-clamp-[16]">{{ summary }}</p>
+        </template>
       </div>
 
-      <!-- Card Content -->
-      <div class="text-nier-primary px-4 py-2">
-        <p class="mb-4">{{ summary }}</p>
-        
-        <!-- Details Section -->
-        <div v-if="hasDetails" class="mb-4">
-          <button 
-            @click="isExpanded = !isExpanded"
-            class="text-sm text-nier-primary hover:opacity-80 transition-opacity flex items-center gap-1"
-          >
-            <span>{{ isExpanded ? 'Hide Details' : 'Show Details' }}</span>
-            <span class="transform transition-transform" :class="{ 'rotate-180': isExpanded }">▼</span>
-          </button>
-          
-          <div v-if="isExpanded" class="mt-2 space-y-2 text-sm text-nier-primary">
-            <div v-if="characters?.length" class="flex gap-2">
-              <span class="font-semibold min-w-20">Characters</span>
-              <span class="opacity-80">{{ characters.join(', ') }}</span>
-            </div>
-            <div v-if="npcs?.length" class="flex gap-2">
-              <span class="font-semibold min-w-20">NPCs</span>
-              <span class="opacity-80">{{ npcs.join(', ') }}</span>
-            </div>
-            <div v-if="locations?.length" class="flex gap-2">
-              <span class="font-semibold min-w-20">Locations</span>
-              <span class="opacity-80">{{ locations.join(', ') }}</span>
-            </div>
+      <!-- Details -->
+      <div v-if="hasDetails" class="mt-4 pt-4 border-t border-nier-primary border-opacity-30 shrink-0">
+        <div class="space-y-2 text-sm">
+          <div v-if="characters?.length" class="flex">
+            <span class="text-nier-primary font-bold min-w-24">Characters</span>
+            <span class="ml-2">{{ formatList(characters) }}</span>
           </div>
-        </div>
-
-        <div class="flex justify-end">
-          <NuxtLink :to="`/journals/${id}`" class="nier-button-small">
-            View Log
-          </NuxtLink>
+          <div v-if="npcs?.length" class="flex">
+            <span class="text-nier-primary font-bold min-w-24">NPCs</span>
+            <span class="ml-2">{{ formatList(npcs) }}</span>
+          </div>
+          <div v-if="locations?.length" class="flex">
+            <span class="text-nier-primary font-bold min-w-24">Locations</span>
+            <span class="ml-2">{{ formatList(locations) }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -80,52 +65,8 @@ const hasDetails = computed(() => {
 </template>
 
 <style scoped>
-/* Add connecting lines - make selector more specific */
-.timeline-entry::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: calc(8.333333%);
-  height: 2px;
-  background-color: #454138;
-}
-
-/* Position connecting lines based on entry position */
-.timeline-entry.justify-start::before {
-  right: 45.833333%;
-}
-
-.timeline-entry.justify-end::before {
-  left: 45.833333%;
-}
-
-.nier-button-small {
-  background-color: #bab5a1;
-  color: #454138;
-  padding: 0.25rem 0.75rem;
-  text-transform: uppercase;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  border: 1px solid #454138;
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.15);
-}
-
-.nier-button-small:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Animation for expand/collapse */
-.transform {
-  display: inline-block;
-  font-size: 0.75rem;
-}
-
-.rotate-180 {
-  transform: rotate(180deg);
-}
-
-.transition-transform {
-  transition: transform 0.2s ease;
+.shadow-nier-lg {
+  box-shadow: 0 10px 25px -5px rgba(var(--nier-primary-rgb), 0.15),
+              0 8px 10px -6px rgba(var(--nier-primary-rgb), 0.1);
 }
 </style> 
