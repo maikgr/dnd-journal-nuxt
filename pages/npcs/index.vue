@@ -53,15 +53,13 @@ watch(npcs, (newNpcs) => {
         <div class="flex gap-8">
             <!-- Character List -->
             <div class="w-1/3">
-                <div class="character-list-container">
-                    <BlockList
-                        :pending="pending"
-                        :error="fetchError?.message || null"
-                        :items="npcItemList"
-                        :selectedItemId="selectedNpcId"
-                        @click="onItemClick"
-                    />
-                </div>
+                <BlockList
+                    :pending="pending"
+                    :error="fetchError?.message || null"
+                    :items="npcItemList"
+                    :selectedItemId="selectedNpcId"
+                    @click="onItemClick"
+                />
             </div>
 
             <!-- Character Details -->
