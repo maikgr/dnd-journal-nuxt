@@ -96,7 +96,7 @@ const content = computed(() => {
     const escapedNames = entityNames
         .map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
         .sort((a, b) => b.length - a.length) // Sort by length descending to match longer names first
-    const entityPattern = new RegExp(`(${escapedNames.join('|')})`, 'gi')
+    const entityPattern = new RegExp(`\\b(${escapedNames.join('|')})\\b`, 'gi')
 
     const processText = (richText: any[]): ProcessedSegment[] => {
         const segments: ProcessedSegment[] = []
@@ -228,7 +228,7 @@ const content = computed(() => {
                             <div>
                                 <template v-for="(segment, segmentIndex) in block.segments" :key="segmentIndex">
                                     <span 
-                                        v-if="segment.type === 'entity'" 
+                                        v-if="segment.entity" 
                                         class="entity-link"
                                         @mouseenter="onMouseEnter($event.target, segment.entity)"
                                         @mouseleave="onMouseLeave"
