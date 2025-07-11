@@ -1,74 +1,179 @@
+<script setup lang="ts">
+const { data, pending, error: fetchError } = useFetch<MainData>('/api/main', {
+  lazy: true,
+  server: false
+})
+
+// Add type safety for the data
+type MainData = {
+  lastSession: {
+    date: string
+    summary: string
+    characters: string[]
+    npcs: string[]
+    locations: string[]
+    day: number
+    leap: number
+    pageId: string
+  }
+  totalSessions: number
+  totalCharacters: number
+  totalNpcs: number
+  totalLocations: number
+}
+
+// Use computed properties for type-safe data access
+const stats = computed(() => {
+  if (!data.value) return null
+  return {
+    lastPlayed: data.value.lastSession.date,
+    totalSessions: data.value.totalSessions,
+    totalCharacters: data.value.totalCharacters,
+    totalNpcs: data.value.totalNpcs,
+    totalLocations: data.value.totalLocations
+  }
+})
+
+const lastSession = computed(() => {
+  if (!data.value) return null
+  return data.value.lastSession
+})
+
+const navigateToJournal = (pageId: string) => {
+  navigateTo(`/journals/${pageId}`)
+}
+</script>
+
 <template>
   <div class="space-y-8">
-    <!-- Stats Section -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="stats-card col-span-1 md:col-span-3">
-        <h2 class="card-header">Campaign Statistics</h2>
-        <div class="card-content grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div class="stat-item">
-            <p class="text-sm opacity-70">Last Played</p>
-            <p class="text-xl">2024-03-20</p>
-          </div>
-          <div class="stat-item">
-            <p class="text-sm opacity-70">Total Sessions</p>
-            <p class="text-xl">12</p>
-          </div>
-          <div class="stat-item">
-            <p class="text-sm opacity-70">PCs</p>
-            <p class="text-xl">4</p>
-          </div>
-          <div class="stat-item">
-            <p class="text-sm opacity-70">NPCs</p>
-            <p class="text-xl">24</p>
-          </div>
-          <div class="stat-item">
-            <p class="text-sm opacity-70">Locations</p>
-            <p class="text-xl">15</p>
+    <!-- Error State -->
+    <div v-if="fetchError" class="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+      <strong class="font-bold">Error!</strong>
+      <span class="block sm:inline"> Failed to load dashboard data.</span>
+    </div>
+
+    <!-- Loading State -->
+    <div v-else-if="pending" class="space-y-8">
+      <!-- Stats Section Loading -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="stats-card col-span-1 md:col-span-3">
+          <h2 class="card-header">Campaign Statistics</h2>
+          <div class="card-content grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div v-for="i in 5" :key="i" class="stat-item">
+              <SkeletonBlock height="h-4 mb-2 w-20" />
+              <SkeletonBlock height="h-6 w-12" />
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Recent Sessions Section -->
-    <section class="recent-sessions nier-section">
-      <h2 class="section-header">Recent Sessions</h2>
-      <div class="space-y-4">
+      <!-- Recent Sessions Loading -->
+      <section class="recent-sessions nier-section">
+        <h2 class="section-header">Recent Sessions</h2>
         <div class="session-card">
           <h3 class="card-header flex justify-between items-center">
-            <span>The Haunted Mines</span>
-            <span class="text-sm">2024-03-20</span>
+            <SkeletonBlock height="h-6 w-48" />
+            <SkeletonBlock height="h-4 w-24" />
           </h3>
           <div class="card-content">
-            <p class="text-sm mb-2 opacity-80">
-              The party ventured deep into the abandoned mines of Mount Shadowpeak, 
-              discovering ancient dwarven ruins and encountering hostile spirits...
-            </p>
+            <SkeletonBlock height="h-16 w-full mb-4" />
             <div class="flex justify-between items-center">
-              <div class="text-sm opacity-70">
-                Players: Alice, Bob, Charlie, David
-              </div>
-              <button class="nier-button-small">Read more...</button>
+              <SkeletonBlock height="h-4 w-64" />
+              <SkeletonBlock height="h-8 w-24" />
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Active Quests Section -->
-    <section class="quests nier-section">
-      <h2 class="section-header">Active Quests</h2>
-      <div class="space-y-2">
+      <!-- Quests Loading -->
+      <section class="quests nier-section">
+        <h2 class="section-header">Active Quests</h2>
         <div class="quest-item">
-          <h3 class="card-header">The Lost Artifact</h3>
+          <h3 class="card-header">
+            <SkeletonBlock height="h-6 w-48" />
+          </h3>
           <div class="card-content">
-            <p class="text-sm opacity-80">Find the ancient artifact in the Shadowpeak mines</p>
-            <div class="flex items-center mt-1">
-              <span class="text-xs px-2 py-1 bg-[#454138] text-[#bab5a1]">In Progress</span>
+            <SkeletonBlock height="h-12 w-full" />
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <template v-else-if="stats && lastSession">
+      <!-- Stats Section -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="stats-card col-span-1 md:col-span-3">
+          <h2 class="card-header">Campaign Statistics</h2>
+          <div class="card-content grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="stat-item">
+              <p class="text-sm opacity-70">Last Played</p>
+              <p class="text-xl">{{ stats.lastPlayed }}</p>
+            </div>
+            <div class="stat-item">
+              <p class="text-sm opacity-70">Total Sessions</p>
+              <p class="text-xl">{{ stats.totalSessions }}</p>
+            </div>
+            <div class="stat-item">
+              <p class="text-sm opacity-70">Characters</p>
+              <p class="text-xl">{{ stats.totalCharacters }}</p>
+            </div>
+            <div class="stat-item">
+              <p class="text-sm opacity-70">NPCs</p>
+              <p class="text-xl">{{ stats.totalNpcs }}</p>
+            </div>
+            <div class="stat-item">
+              <p class="text-sm opacity-70">Locations</p>
+              <p class="text-xl">{{ stats.totalLocations }}</p>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <!-- Recent Sessions Section -->
+      <section class="recent-sessions nier-section">
+        <h2 class="section-header">Recent Sessions</h2>
+        <div class="space-y-4">
+          <div class="session-card">
+            <h3 class="card-header flex justify-between items-center">
+              <span>Timeline {{ lastSession.leap }} • Day {{ lastSession.day }}</span>
+              <span class="text-sm">{{ lastSession.date }}</span>
+            </h3>
+            <div class="card-content">
+              <p class="text-sm mb-2 opacity-80">
+                {{ lastSession.summary }}
+              </p>
+              <div class="flex justify-between items-center">
+                <div class="text-sm opacity-70">
+                  Characters: {{ lastSession.characters.join(', ') }}
+                </div>
+                <button 
+                  class="nier-button-small"
+                  @click="navigateToJournal(lastSession.pageId)"
+                >
+                  Read more...
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Active Quests Section -->
+      <section class="quests nier-section">
+        <h2 class="section-header">Active Quests</h2>
+        <div class="space-y-2">
+          <div class="quest-item">
+            <h3 class="card-header">Find SPIRIT</h3>
+            <div class="card-content">
+              <p class="text-sm opacity-80 text-nier-warning">[NO DATA]</p>
+              <div class="flex items-center mt-1">
+                <span class="text-xs px-2 py-1 bg-nier-primary text-nier-secondary">In Progress</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </template>
   </div>
 </template>
 
