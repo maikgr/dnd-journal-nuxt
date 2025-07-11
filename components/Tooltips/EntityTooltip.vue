@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import CharacterTooltips from './CharacterTooltips.vue'
+import NpcTooltips from './NpcTooltips.vue'
+import LocationTooltips from './LocationTooltips.vue'
+
 interface Props {
     // Entity data
     name: string
+    type: 'character' | 'npc' | 'location'
+    description?: string
+    tagline?: string
     charClass?: string
     occupation?: string
     flavor?: string
@@ -112,11 +118,23 @@ watch(() => props.triggerRef, () => {
             >
                 <div class="tooltip-content">
                     <CharacterTooltips
+                        v-if="type === 'character'"
                         :name="name"
                         :char-class="charClass || ''"
                         :occupation="occupation || ''"
                         :species="species || ''"
                         :flavor="flavor || ''"
+                    />
+                    <NpcTooltips
+                        v-if="type === 'npc'"
+                        :name="name"
+                        :description="description || 'Unknown'"
+                    />
+                    <LocationTooltips
+                        v-if="type === 'location'"
+                        :name="name"
+                        :description="description || 'Unknown'"
+                        :tagline="tagline"
                     />
                     <button
                         v-if="isPinned"
@@ -144,8 +162,6 @@ watch(() => props.triggerRef, () => {
     background: theme('colors.nier.bg-primary');
     border: 1px solid theme('colors.nier.primary');
     border-radius: 4px;
-    min-width: 280px;
-    max-width: 400px;
 }
 
 .tooltip-arrow {

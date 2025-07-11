@@ -66,7 +66,8 @@ export default defineEventHandler(async (event) => {
                 acc.set(loc.id, {
                     id: loc.id,
                     name: loc.properties.Name.title[0].plain_text,
-                    notes: loc.properties.Notes.rich_text[0]?.plain_text,
+                    description: loc.properties.Description.rich_text[0]?.plain_text,
+                    tagline: loc.properties.Tagline?.rich_text[0]?.plain_text,
                 });
             } catch (error) {
                 console.error('Error processing location:', loc, error);
@@ -79,7 +80,7 @@ export default defineEventHandler(async (event) => {
                 acc.set(npc.id, {
                     id: npc.id,
                     name: npc.properties.Name.title[0].plain_text,
-                    notes: npc.properties.Notes.rich_text[0]?.plain_text,
+                    description: npc.properties.Description.rich_text[0]?.plain_text,
                 });
             } catch (error) {
                 console.error('Error processing NPC:', npc, error);
@@ -102,15 +103,15 @@ export default defineEventHandler(async (event) => {
                     case 'Character':
                         entityId = data.properties['Player Characters']?.relation?.[0]?.id;
                         if (!entityId) {
-                            console.warn('Character alias missing id:', data);
+                            console.warn('Character alias missing:', data.properties.Name.title[0].plain_text);
                             return acc;
                         }
                         entityData = characters.get(entityId);
                         break;
                     case 'NPC':
-                        entityId = data.properties['NPCs']?.relation?.[0]?.id;
+                        entityId = data.properties['NPC']?.relation?.[0]?.id;
                         if (!entityId) {
-                            console.warn('NPC alias missing id:', data);
+                            console.warn('NPC alias missing:', data.properties.Name.title[0].plain_text);
                             return acc;
                         }
                         entityData = npcs.get(entityId);
@@ -118,7 +119,7 @@ export default defineEventHandler(async (event) => {
                     case 'Location':
                         entityId = data.properties['Locations']?.relation?.[0]?.id;
                         if (!entityId) {
-                            console.warn('Location alias missing id:', data);
+                            console.warn('Location alias missing:', data.properties.Name.title[0].plain_text);
                             return acc;
                         }
                         entityData = locations.get(entityId);

@@ -96,7 +96,7 @@ const content = computed(() => {
     const escapedNames = entityNames
         .map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
         .sort((a, b) => b.length - a.length) // Sort by length descending to match longer names first
-    const entityPattern = new RegExp(`(${escapedNames.join('|')})`, 'gi') // Added 'i' flag for case-insensitive matching
+    const entityPattern = new RegExp(`(${escapedNames.join('|')})`, 'gi')
 
     const processText = (richText: any[]): ProcessedSegment[] => {
         const segments: ProcessedSegment[] = []
@@ -122,8 +122,13 @@ const content = computed(() => {
                 const entityKey = entityNames.find(name => name.toLowerCase() === match?.[0]?.toLowerCase())
                 
                 // Add matched entity
+                if (!entityKey) {
+                    console.warn('Entity key not found:', match[0])
+                    return segments
+                }
+
                 segments.push({
-                    type: 'entity',
+                    type: journal.value?.entityMap[entityKey].type,
                     text: match[0],
                     entity: entityKey ? {
                        ...journal.value?.entityMap[entityKey],
@@ -206,7 +211,7 @@ const content = computed(() => {
                         <div v-if="block.type === 'paragraph'" class="whitespace-pre-wrap font-alt-content text-lg leading-relaxed">
                             <template v-for="(segment, segmentIndex) in block.segments" :key="segmentIndex">
                                 <span 
-                                    v-if="segment.type === 'entity'" 
+                                    v-if="segment.entity" 
                                     class="entity-link"
                                     @mouseenter="onMouseEnter($event.target, segment.entity)"
                                     @mouseleave="onMouseLeave"
@@ -241,8 +246,11 @@ const content = computed(() => {
 
             <!-- Tooltip -->
             <EntityTooltip
-                v-if="hoveredEntity"
+                v-if="hoveredEntity && journal?.entityMap[hoveredEntity]?.type !== 'entity'"
                 :name="journal?.entityMap[hoveredEntity]?.name"
+                :type="journal?.entityMap[hoveredEntity]?.type"
+                :tagline="journal?.entityMap[hoveredEntity]?.tagline"
+                :description="journal?.entityMap[hoveredEntity]?.description"
                 :char-class="journal?.entityMap[hoveredEntity]?.charClass"
                 :occupation="journal?.entityMap[hoveredEntity]?.occupation"
                 :species="journal?.entityMap[hoveredEntity]?.species"

@@ -203,6 +203,15 @@ export async function getNpcs() {
     }
     await storage.setItem(CACHE_KEY.NPCS, cacheEntry)
 
+    // Also cache each npc individually
+    for (const npc of response.results) {
+      const npcCacheEntry: CacheEntry<any> = {
+        data: npc,
+        timestamp: Date.now()
+      }
+      await storage.setItem(`${CACHE_KEY.NPCS}-${npc.id}`, npcCacheEntry)
+    }
+
     return response.results
   } catch (error) {
     const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.NPCS)
@@ -215,6 +224,40 @@ export async function getNpcs() {
     throw createError({
       statusCode: 500,
       message: 'Failed to fetch NPCs database'
+    })
+  }
+}
+
+export async function getNpcById(id: string) {
+  const notion = getNotionClient()
+  const cached = await storage.getItem<CacheEntry<any>>(`${CACHE_KEY.NPCS}-${id}`)
+  try {
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data
+    }
+
+    const response = await notion.pages.retrieve({
+      page_id: id,
+    })
+    
+    const cacheEntry: CacheEntry<any> = {
+      data: response,
+      timestamp: Date.now()
+    }
+    await storage.setItem(`${CACHE_KEY.NPCS}-${id}`, cacheEntry)
+
+    return response
+  }
+  catch (error) {
+    if (cached) {
+      console.warn('Using cached data for NPC due to Notion API error')
+      return cached.data
+    }
+
+    console.error('Error fetching NPC by ID:', error)
+    throw createError({
+      statusCode: 500,
+      message: 'Failed to fetch NPC by ID'
     })
   }
 }
@@ -239,6 +282,15 @@ export async function getLocations() {
     }
     await storage.setItem(CACHE_KEY.LOCATIONS, cacheEntry)
 
+    // Also cache each location individually
+    for (const location of response.results) {
+      const locationCacheEntry: CacheEntry<any> = {
+        data: location,
+        timestamp: Date.now()
+      }
+      await storage.setItem(`${CACHE_KEY.LOCATIONS}-${location.id}`, locationCacheEntry)
+    }
+
     return response.results
   } catch (error) {
     const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.LOCATIONS)
@@ -251,6 +303,40 @@ export async function getLocations() {
     throw createError({
       statusCode: 500,
       message: 'Failed to fetch locations database'
+    })
+  }
+}
+
+export async function getLocationById(id: string) {
+  const notion = getNotionClient()
+  const cached = await storage.getItem<CacheEntry<any>>(`${CACHE_KEY.LOCATIONS}-${id}`)
+  try {
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data
+    }
+
+    const response = await notion.pages.retrieve({
+      page_id: id,
+    })
+    
+    const cacheEntry: CacheEntry<any> = {
+      data: response,
+      timestamp: Date.now()
+    }
+    await storage.setItem(`${CACHE_KEY.LOCATIONS}-${id}`, cacheEntry)
+
+    return response
+  }
+  catch (error) {
+    if (cached) {
+      console.warn('Using cached data for location due to Notion API error')
+      return cached.data
+    }
+
+    console.error('Error fetching location by ID:', error)
+    throw createError({
+      statusCode: 500,
+      message: 'Failed to fetch location by ID'
     })
   }
 }

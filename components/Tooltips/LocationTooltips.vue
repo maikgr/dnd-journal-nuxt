@@ -1,10 +1,8 @@
 <script setup lang="ts">
 interface Props {
     name: string
-    charClass: string
-    species: string
-    occupation: string
-    flavor: string
+    description: string
+    tagline?: string
 }
 defineProps<Props>()
 </script>
@@ -14,21 +12,17 @@ defineProps<Props>()
         <!-- Card Header -->
         <div class="bg-nier-primary text-nier-text-inverse px-2 py-0 m-[-1px] border border-nier-primary flex justify-between">
             <div class="font-bold font-nier tracking-wide">{{ name }}</div>
-            <div class="opacity-80 text-xs italic mt-0.5">{{ charClass }}</div>
         </div>
 
         <!-- Card Content -->
         <div class="p-2 bg-nier-bg-primary text-xs text-nier-primary">
-            <div v-if="species" class="flex mb-1.5 gap-1">
-                <span class="flex tracking-wide font-semibold uppercase min-w-16">Species</span>
-                <span>{{ species }}</span>
-            </div>
-            <div v-if="occupation" class="flex mb-1.5 gap-1">
-                <span class="flex tracking-wide font-semibold uppercase min-w-16">Role</span>
-                <span>{{ occupation }}</span>
+            <div class="mb-1.5 gap-1">
+                <span>{{ description }}</span>
             </div>
 
-            <div v-if="flavor" class="italic opacity-90 pt-1 mt-1 border-t border-nier-primary/20 line-height-1.4 center">{{ flavor }}</div>
+            <div v-if="tagline" class="pt-1 mt-1 border-t border-nier-primary/20 line-height-1.4 flex items-center justify-center">
+                <span class="italic opacity-90">{{ tagline }}</span>
+            </div>
         </div>
 
         <!-- Decorative Elements -->
