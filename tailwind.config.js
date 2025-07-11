@@ -15,6 +15,7 @@ export default {
           // Main colors
           primary: '#454138',    // Dark brown
           secondary: '#bab5a1',  // Light brown
+          warning: '#CD664D', // red-orange
           
           // Semantic colors
           'text-primary': '#454138',

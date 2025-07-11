@@ -18,7 +18,7 @@ const { data: journalEntries, pending, error: fetchError } = useFetch('/api/jour
       id: entry.id,
       pageId: entry.properties?.PageID?.title?.[0]?.plain_text || '',
       date: entry.properties?.Date?.date?.start,
-      summary: entry.properties?.Summary?.rich_text?.[0]?.plain_text || 'No summary available',
+      summary: entry.properties?.Summary?.rich_text?.[0]?.plain_text,
       leap: entry.properties?.Leap?.number || 0,
       day: entry.properties?.Day?.number || 0,
       session: entry.properties?.Session?.number || 0,
@@ -159,7 +159,7 @@ onMounted(() => {
             :data-pos="entry.position"
             @click="handleCardClick(entry)"
           >
-            <JournalCard
+            <JournalCard v-if="entry.summary"
               :id="entry.pageId"
               :summary="entry.summary"
               :characters="entry.characters"
@@ -169,6 +169,7 @@ onMounted(() => {
               :leap="entry.leap"
               :day="entry.day"
             />
+            <JournalCardNoData v-else />
           </li>
         </ul>
       </div>
