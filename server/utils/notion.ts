@@ -106,12 +106,14 @@ export async function getCharacters() {
       return cached.data
     }
 
-    console.log('Fetching characters from Notion:', {
-      databaseId: config.notionCharactersDatabaseId
-    })
-
     const response = await notion.databases.query({
       database_id: config.notionCharactersDatabaseId,
+      sorts: [
+        {
+          property: 'Index',
+          direction: 'ascending',
+        }
+      ]
     })
 
     const cacheEntry: CacheEntry<any[]> = {
