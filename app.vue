@@ -3,9 +3,10 @@
     <div class="container mx-auto px-4 py-8 max-w-4xl">
       <header class="mb-8">
         <h1 class="text-3xl font-bold text-center border-b border-nier-primary pb-4 uppercase tracking-wider nier-title">
-          Corposcape Campaign Journal
+          Corposcape Journal
         </h1>
-        <nav class="mt-6">
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:block mt-6">
           <ul class="flex justify-center gap-4 w-full max-w-3xl mx-auto">
             <li v-for="item in menuItems" :key="item.name" class="flex-1">
               <MenuButton :text="item.name" :linkPath="item.path" :isActive="route.path === item.path" :fwIcon="item.fwIcon" />
@@ -15,6 +16,22 @@
       </header>
       <NuxtPage />
     </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-nier-bg-primary border-t border-nier-primary shadow-nier-top">
+      <ul class="flex justify-around items-center">
+        <li v-for="item in menuItems" :key="item.name">
+          <NuxtLink 
+            :to="item.path" 
+            class="flex flex-col items-center p-2 text-nier-text-primary hover:text-nier-primary transition-colors w-16"
+            :class="{ 'bg-nier-primary text-nier-bg-primary': route.path === item.path }"
+          >
+            <font-awesome-icon :icon="item.fwIcon" class="w-6 h-6" :class="{ 'text-nier-bg-primary': route.path === item.path }" />
+            <span class="text-xs mt-1" :class="{ 'text-nier-bg-primary': route.path === item.path }">{{ item.name }}</span>
+          </NuxtLink>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
 
@@ -77,6 +94,13 @@ h1, h2, h3, h4, h5, h6 {
   right: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent, theme('colors.nier.primary'), transparent);
+}
+
+/* Add bottom padding on mobile to account for the navigation bar */
+@media (max-width: 768px) {
+  .container {
+    padding-bottom: 5rem;
+  }
 }
 </style>
 

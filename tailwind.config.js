@@ -38,6 +38,7 @@ export default {
       },
       boxShadow: {
         'nier': '3px 3px 0px rgba(0, 0, 0, 0.25)',
+        'nier-top': '0px -3px 0px rgba(0, 0, 0, 0.25)',
       },
     },
   },
