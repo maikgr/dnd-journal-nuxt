@@ -58,10 +58,18 @@ const navigateToJournal = (pageId: string) => {
       <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="stats-card col-span-1 md:col-span-3">
           <h2 class="card-header">Campaign Statistics</h2>
-          <div class="card-content grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div v-for="i in 5" :key="i" class="stat-item">
-              <SkeletonBlock height="h-4 mb-2 w-20" />
-              <SkeletonBlock height="h-6 w-12" />
+          <div class="card-content">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+              <div v-for="i in 5" :key="i" class="stat-item relative overflow-hidden">
+                <div class="stat-content animate-pulse">
+                  <div class="stat-icon mb-2">
+                    <div class="w-6 h-6 bg-nier-primary opacity-30 rounded-full"></div>
+                  </div>
+                  <SkeletonBlock height="h-4 mb-2 w-20" />
+                  <SkeletonBlock height="h-6 w-12" />
+                </div>
+                <div class="stat-decoration"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -104,26 +112,67 @@ const navigateToJournal = (pageId: string) => {
       <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="stats-card col-span-1 md:col-span-3">
           <h2 class="card-header">Campaign Statistics</h2>
-          <div class="card-content grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="stat-item">
-              <p class="text-sm opacity-70">Last Played</p>
-              <p class="text-xl">{{ stats.lastPlayed }}</p>
-            </div>
-            <div class="stat-item">
-              <p class="text-sm opacity-70">Total Sessions</p>
-              <p class="text-xl">{{ stats.totalSessions }}</p>
-            </div>
-            <div class="stat-item">
-              <p class="text-sm opacity-70">Characters</p>
-              <p class="text-xl">{{ stats.totalCharacters }}</p>
-            </div>
-            <div class="stat-item">
-              <p class="text-sm opacity-70">NPCs</p>
-              <p class="text-xl">{{ stats.totalNpcs }}</p>
-            </div>
-            <div class="stat-item">
-              <p class="text-sm opacity-70">Locations</p>
-              <p class="text-xl">{{ stats.totalLocations }}</p>
+          <div class="card-content">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+              <!-- Last Played -->
+              <div class="stat-item relative overflow-hidden">
+                <div class="stat-content">
+                  <div class="stat-icon mb-2">
+                    <font-awesome-icon icon="fa-solid fa-clock" class="text-nier-primary opacity-70" />
+                  </div>
+                  <p class="text-xs sm:text-sm uppercase tracking-wider opacity-70">Last Played</p>
+                  <p class="text-lg sm:text-xl font-nier">{{ stats.lastPlayed }}</p>
+                </div>
+                <div class="stat-decoration"></div>
+              </div>
+
+              <!-- Total Sessions -->
+              <div class="stat-item relative overflow-hidden">
+                <div class="stat-content">
+                  <div class="stat-icon mb-2">
+                    <font-awesome-icon icon="fa-solid fa-dice-d20" class="text-nier-primary opacity-70" />
+                  </div>
+                  <p class="text-xs sm:text-sm uppercase tracking-wider opacity-70">Sessions</p>
+                  <p class="text-lg sm:text-xl font-nier">{{ stats.totalSessions }}</p>
+                </div>
+                <div class="stat-decoration"></div>
+              </div>
+
+              <!-- Characters -->
+              <div class="stat-item relative overflow-hidden">
+                <div class="stat-content">
+                  <div class="stat-icon mb-2">
+                    <font-awesome-icon icon="fa-solid fa-users" class="text-nier-primary opacity-70" />
+                  </div>
+                  <p class="text-xs sm:text-sm uppercase tracking-wider opacity-70">Characters</p>
+                  <p class="text-lg sm:text-xl font-nier">{{ stats.totalCharacters }}</p>
+                </div>
+                <div class="stat-decoration"></div>
+              </div>
+
+              <!-- NPCs -->
+              <div class="stat-item relative overflow-hidden">
+                <div class="stat-content">
+                  <div class="stat-icon mb-2">
+                    <font-awesome-icon icon="fa-solid fa-masks-theater" class="text-nier-primary opacity-70" />
+                  </div>
+                  <p class="text-xs sm:text-sm uppercase tracking-wider opacity-70">NPCs</p>
+                  <p class="text-lg sm:text-xl font-nier">{{ stats.totalNpcs }}</p>
+                </div>
+                <div class="stat-decoration"></div>
+              </div>
+
+              <!-- Locations -->
+              <div class="stat-item relative overflow-hidden">
+                <div class="stat-content">
+                  <div class="stat-icon mb-2">
+                    <font-awesome-icon icon="fa-solid fa-map" class="text-nier-primary opacity-70" />
+                  </div>
+                  <p class="text-xs sm:text-sm uppercase tracking-wider opacity-70">Locations</p>
+                  <p class="text-lg sm:text-xl font-nier">{{ stats.totalLocations }}</p>
+                </div>
+                <div class="stat-decoration"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -254,9 +303,99 @@ const navigateToJournal = (pageId: string) => {
 }
 
 .stat-item {
+  position: relative;
   background-color: #d1cdb7;
   border: 1px solid #454138;
-  padding: 0.75rem;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.stat-content {
+  position: relative;
+  z-index: 2;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Decorative elements */
+.stat-decoration {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.stat-decoration::before,
+.stat-decoration::after {
+  content: '';
+  position: absolute;
+  background-color: #454138;
+  opacity: 0.1;
+  transition: all 0.3s ease;
+}
+
+/* Diagonal line decoration */
+.stat-decoration::before {
+  top: -1rem;
+  right: -1rem;
+  width: 3px;
+  height: 150%;
+  transform: rotate(45deg);
+}
+
+/* Corner square decoration */
+.stat-decoration::after {
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 6px;
+  height: 6px;
+  border: 1px solid currentColor;
+  opacity: 0.3;
+  border-left: none;
+  border-bottom: none;
+}
+
+/* Hover effects */
+.stat-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(69, 65, 56, 0.1);
+}
+
+.stat-item:hover .stat-decoration::before {
+  opacity: 0.15;
+  transform: rotate(45deg) scale(1.1);
+}
+
+.stat-item:hover .stat-decoration::after {
+  opacity: 0.4;
+}
+
+/* Grid layout adjustments */
+@media (max-width: 768px) {
+  .stat-item {
+    padding: 0.75rem;
+  }
+  
+  .stat-icon {
+    font-size: 1.25rem;
+    height: 1.75rem;
+  }
+}
+
+/* Add animation for loading state */
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .nier-button-small {
