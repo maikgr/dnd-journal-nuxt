@@ -170,45 +170,45 @@ const content = computed(() => {
 </script>
 
 <template>
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div v-if="pending" class="space-y-4">
             <SkeletonBlock :height="'h-96'" />
         </div>
         <div v-else-if="error" class="text-red-500">
             Error: {{ error }}
         </div>
-        <div v-else-if="journal" class="space-y-8">
+        <div v-else-if="journal" class="space-y-4 sm:space-y-8">
             <!-- Header -->
-            <div class="bg-nier-primary text-nier-text-inverse px-6 py-4 shadow-nier">
-                <h1 class="text-3xl font-bold mb-2 font-nier">Session {{ journal.session }}</h1>
-                <p class="text-lg opacity-80">Day {{ journal.day }} - Time Leap {{ journal.leap }}</p>
+            <div class="bg-nier-primary text-nier-text-inverse px-4 sm:px-6 py-3 sm:py-4 shadow-nier">
+                <h1 class="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 font-nier">Session {{ journal.session }}</h1>
+                <p class="text-base sm:text-lg opacity-80">Day {{ journal.day }} - Time Leap {{ journal.leap }}</p>
             </div>
 
             <!-- Details -->
-            <div class="bg-nier-bg-primary border border-nier-primary p-6">
-                <div class="space-y-4">
-                    <div v-if="journal.characters.length" class="flex gap-4">
-                        <span class="font-semibold min-w-32">Characters</span>
+            <div class="bg-nier-bg-primary border border-nier-primary p-4 sm:p-6">
+                <div class="space-y-3 sm:space-y-4">
+                    <div v-if="journal.characters.length" class="flex gap-3 sm:gap-4 text-sm sm:text-base">
+                        <span class="font-semibold min-w-24 sm:min-w-32">Characters</span>
                         <span class="opacity-80">{{ journal.characters.join(', ') }}</span>
                     </div>
-                    <div v-if="journal.npcs.length" class="flex gap-4">
-                        <span class="font-semibold min-w-32">NPCs</span>
+                    <div v-if="journal.npcs.length" class="flex gap-3 sm:gap-4 text-sm sm:text-base">
+                        <span class="font-semibold min-w-24 sm:min-w-32">NPCs</span>
                         <span class="opacity-80">{{ journal.npcs.join(', ') }}</span>
                     </div>
-                    <div v-if="journal.locations.length" class="flex gap-4">
-                        <span class="font-semibold min-w-32">Locations</span>
+                    <div v-if="journal.locations.length" class="flex gap-3 sm:gap-4 text-sm sm:text-base">
+                        <span class="font-semibold min-w-24 sm:min-w-32">Locations</span>
                         <span class="opacity-80">{{ journal.locations.join(', ') }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Content -->
-            <div class="bg-nier-bg-primary border border-nier-primary p-6">
-                <h2 class="text-xl font-bold mb-4 font-nier">Content</h2>
-                <div class="space-y-4 font-content text-lg leading-relaxed">
+            <div class="bg-nier-bg-primary border border-nier-primary p-4 sm:p-6">
+                <h2 class="text-lg sm:text-xl font-bold mb-3 sm:mb-4 font-nier">Content</h2>
+                <div class="space-y-3 sm:space-y-4 font-content text-base sm:text-lg leading-relaxed">
                     <div v-for="(block, index) in content" :key="index">
                         <!-- Paragraph -->
-                        <div v-if="block.type === 'paragraph'" class="whitespace-pre-wrap font-alt-content text-lg leading-relaxed">
+                        <div v-if="block.type === 'paragraph'" class="whitespace-pre-wrap font-alt-content text-base sm:text-lg leading-relaxed">
                             <template v-for="(segment, segmentIndex) in block.segments" :key="segmentIndex">
                                 <span 
                                     v-if="segment.entity" 
@@ -223,7 +223,7 @@ const content = computed(() => {
                             </template>
                         </div>
                         <!-- Bullet Point -->
-                        <div v-else-if="block.type === 'bulleted_list_item'" class="whitespace-pre-wrap font-alt-content text-lg leading-relaxed pl-4 flex">
+                        <div v-else-if="block.type === 'bulleted_list_item'" class="whitespace-pre-wrap font-alt-content text-base sm:text-lg leading-relaxed pl-3 sm:pl-4 flex">
                             <span class="mr-2">•</span>
                             <div>
                                 <template v-for="(segment, segmentIndex) in block.segments" :key="segmentIndex">
@@ -260,8 +260,8 @@ const content = computed(() => {
             />
 
             <!-- Back button -->
-            <div class="flex justify-end">
-                <NuxtLink to="/" class="nier-button-small">
+            <div class="flex justify-end mt-4 sm:mt-8">
+                <NuxtLink to="/journals" class="nier-button-small">
                     Back to Timeline
                 </NuxtLink>
             </div>
@@ -276,12 +276,20 @@ const content = computed(() => {
 .nier-button-small {
     background-color: theme('colors.nier.secondary');
     color: theme('colors.nier.primary');
-    padding: 0.5rem 1rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
     text-transform: uppercase;
     font-weight: 600;
     transition: all 0.2s ease;
     border: 1px solid theme('colors.nier.primary');
     text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.15);
+}
+
+@media (min-width: 640px) {
+    .nier-button-small {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
 }
 
 .nier-button-small:hover {

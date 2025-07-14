@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-nier-bg-primary font-mono text-nier-text-primary bg-pattern">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="min-h-screen bg-nier-bg-primary font-mono text-nier-text-primary bg-pattern overflow-x-hidden">
+    <div class="container mx-auto px-4 py-8 max-w-4xl relative">
       <header class="mb-8">
         <h1 class="text-3xl font-bold text-center border-b border-nier-primary pb-4 uppercase tracking-wider nier-title">
           Corposcape Journal
@@ -38,10 +38,28 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap');
 
+/* Prevent unwanted touch behaviors globally */
+html {
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-y: none;
+}
+
 .bg-pattern {
   background-image: linear-gradient(to right, theme('colors.nier.grid') 1px, transparent 1px),
                     linear-gradient(to bottom, theme('colors.nier.grid') 1px, transparent 1px);
   background-size: 20px 20px;
+  background-attachment: fixed;
 }
 
 h1, h2, h3, h4, h5, h6 {

@@ -75,6 +75,70 @@ const handleNext = () => {
   }
 }
 
+// Touch/drag navigation
+const touchStartX = ref(0)
+const touchEndX = ref(0)
+const isDragging = ref(false)
+const dragOffset = ref(0)
+
+const handleTouchStart = (e: TouchEvent) => {
+  e.preventDefault() // Prevent default touch behavior
+  touchStartX.value = e.touches[0].clientX
+  isDragging.value = true
+  dragOffset.value = 0
+}
+
+const handleTouchMove = (e: TouchEvent) => {
+  if (!isDragging.value) return
+  e.preventDefault() // Prevent scrolling while dragging
+  touchEndX.value = e.touches[0].clientX
+  dragOffset.value = touchEndX.value - touchStartX.value
+}
+
+const handleTouchEnd = () => {
+  if (!isDragging.value) return
+  
+  const threshold = 50 // Minimum distance for a swipe
+  const distance = touchEndX.value - touchStartX.value
+  
+  if (Math.abs(distance) > threshold) {
+    if (distance > 0) {
+      // Swiped right - go to previous
+      handlePrevious()
+    } else {
+      // Swiped left - go to next
+      handleNext()
+    }
+  }
+  
+  isDragging.value = false
+  dragOffset.value = 0
+}
+
+// Mouse drag support for desktop
+const handleMouseDown = (e: MouseEvent) => {
+  e.preventDefault() // Prevent text selection and other default behaviors
+  touchStartX.value = e.clientX
+  isDragging.value = true
+  dragOffset.value = 0
+  
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging.value) return
+    e.preventDefault()
+    touchEndX.value = e.clientX
+    dragOffset.value = touchEndX.value - touchStartX.value
+  }
+  
+  const handleMouseUp = () => {
+    handleTouchEnd()
+    document.removeEventListener('mousemove', handleMouseMove)
+    document.removeEventListener('mouseup', handleMouseUp)
+  }
+  
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mouseup', handleMouseUp)
+}
+
 // Dynamic height calculation
 const containerRef = ref<HTMLElement | null>(null)
 const cardHeight = ref(0)
@@ -98,27 +162,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto px-4" ref="containerRef">
+  <div class="max-w-7xl mx-auto px-2 sm:px-4" ref="containerRef">
     <!-- Loading state -->
     <div v-if="pending" class="space-y-4">
       <!-- Header skeleton -->
-      <div class="bg-nier-bg-primary border border-nier-primary p-4 mb-4 animate-pulse">
-        <div class="flex justify-center items-center gap-8">
-          <div class="h-6 bg-nier-primary opacity-30 rounded w-32"></div>
-          <div class="h-5 bg-nier-primary opacity-30 rounded w-40"></div>
+      <div class="bg-nier-bg-primary border border-nier-primary p-3 sm:p-4 mb-4 animate-pulse">
+        <div class="flex justify-center items-center gap-4 sm:gap-8">
+          <div class="h-5 sm:h-6 bg-nier-primary opacity-30 rounded w-24 sm:w-32"></div>
+          <div class="h-4 sm:h-5 bg-nier-primary opacity-30 rounded w-32 sm:w-40"></div>
         </div>
       </div>
 
       <!-- Card skeleton -->
       <div class="flex justify-center items-center">
-        <div class="w-[450px] bg-nier-bg-primary border border-nier-primary p-6 animate-pulse">
+        <div class="w-full max-w-[280px] sm:max-w-[350px] md:max-w-[400px] bg-nier-bg-primary border border-nier-primary p-4 sm:p-6 animate-pulse">
           <div class="space-y-3">
-            <div class="h-5 bg-nier-primary opacity-30 rounded w-full"></div>
-            <div class="h-5 bg-nier-primary opacity-30 rounded w-3/4"></div>
+            <div class="h-4 sm:h-5 bg-nier-primary opacity-30 rounded w-full"></div>
+            <div class="h-4 sm:h-5 bg-nier-primary opacity-30 rounded w-3/4"></div>
             <div class="flex gap-2 mt-4">
-              <div class="h-6 bg-nier-primary opacity-30 rounded w-20"></div>
-              <div class="h-6 bg-nier-primary opacity-30 rounded w-24"></div>
-              <div class="h-6 bg-nier-primary opacity-30 rounded w-16"></div>
+              <div class="h-5 sm:h-6 bg-nier-primary opacity-30 rounded w-16 sm:w-20"></div>
+              <div class="h-5 sm:h-6 bg-nier-primary opacity-30 rounded w-20 sm:w-24"></div>
+              <div class="h-5 sm:h-6 bg-nier-primary opacity-30 rounded w-12 sm:w-16"></div>
             </div>
           </div>
         </div>
@@ -156,8 +220,14 @@ onMounted(() => {
             v-for="entry in visibleEntries"
             :key="entry.id"
             class="carousel-item"
+            :class="{ 'dragging': isDragging }"
             :data-pos="entry.position"
+            :style="entry.position === 0 && isDragging ? { transform: `translateX(${dragOffset * 0.1}px) scale(1)` } : {}"
             @click="handleCardClick(entry)"
+            @touchstart="handleTouchStart"
+            @touchmove="handleTouchMove"
+            @touchend="handleTouchEnd"
+            @mousedown="handleMouseDown"
           >
             <JournalCard v-if="entry.summary"
               :id="entry.pageId"
@@ -187,6 +257,9 @@ onMounted(() => {
   display: flex;
   width: 100%;
   align-items: center;
+  touch-action: none;
+  position: relative;
+  overflow: hidden;
 }
 
 .carousel-list {
@@ -197,13 +270,37 @@ onMounted(() => {
   justify-content: center;
   perspective: 1000px;
   padding: 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .carousel-item {
-  width: 450px;
+  width: 280px;
   position: absolute;
   transition: all 0.3s ease-in;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  will-change: transform;
+}
+
+.carousel-item.dragging {
+  transition: none;
+  cursor: grabbing;
+}
+
+@media (min-width: 640px) {
+  .carousel-item {
+    width: 350px;
+  }
+}
+
+@media (min-width: 768px) {
+  .carousel-item {
+    width: 400px;
+  }
 }
 
 .carousel-item[data-pos="0"] {
@@ -215,16 +312,44 @@ onMounted(() => {
 
 .carousel-item[data-pos="-1"] {
   z-index: 4;
-  transform: translateX(-50%) scale(0.9);
-  opacity: 0.6;
-  filter: blur(1px) grayscale(10%);
+  transform: translateX(-60%) scale(0.8);
+  opacity: 0.5;
+  filter: blur(1px) grayscale(20%);
 }
 
 .carousel-item[data-pos="1"] {
   z-index: 4;
-  transform: translateX(50%) scale(0.9);
-  opacity: 0.6;
-  filter: blur(1px) grayscale(10%);
+  transform: translateX(60%) scale(0.8);
+  opacity: 0.5;
+  filter: blur(1px) grayscale(20%);
+}
+
+@media (min-width: 640px) {
+  .carousel-item[data-pos="-1"] {
+    transform: translateX(-65%) scale(0.85);
+    opacity: 0.6;
+    filter: blur(1px) grayscale(15%);
+  }
+  
+  .carousel-item[data-pos="1"] {
+    transform: translateX(65%) scale(0.85);
+    opacity: 0.6;
+    filter: blur(1px) grayscale(15%);
+  }
+}
+
+@media (min-width: 768px) {
+  .carousel-item[data-pos="-1"] {
+    transform: translateX(-70%) scale(0.9);
+    opacity: 0.7;
+    filter: blur(1px) grayscale(10%);
+  }
+  
+  .carousel-item[data-pos="1"] {
+    transform: translateX(70%) scale(0.9);
+    opacity: 0.7;
+    filter: blur(1px) grayscale(10%);
+  }
 }
 
 /* Fade transition for header */
