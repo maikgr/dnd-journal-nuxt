@@ -20,6 +20,18 @@ type MainData = {
   totalCharacters: number
   totalNpcs: number
   totalLocations: number
+  quests: {
+    id: string
+    name: string
+    number: number
+    nextSteps: string
+    facts: {
+      id: string
+      sessionId: string
+      sessionDate: string
+      summary: string
+    }[]
+  }[]
 }
 
 // Use computed properties for type-safe data access
@@ -30,7 +42,7 @@ const stats = computed(() => {
     totalSessions: data.value.totalSessions,
     totalCharacters: data.value.totalCharacters,
     totalNpcs: data.value.totalNpcs,
-    totalLocations: data.value.totalLocations
+    totalLocations: data.value.totalLocations,
   }
 })
 
@@ -39,9 +51,11 @@ const lastSession = computed(() => {
   return data.value.lastSession
 })
 
-const navigateToJournal = (pageId: string) => {
-  navigateTo(`/journals/${pageId}`)
-}
+const quests = computed(() => {
+  if (!data.value) return null
+  return data.value.quests
+})
+
 </script>
 
 <template>
@@ -70,24 +84,6 @@ const navigateToJournal = (pageId: string) => {
                 </div>
                 <div class="stat-decoration"></div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Recent Sessions Loading -->
-      <section class="recent-sessions nier-section">
-        <h2 class="section-header">Recent Sessions</h2>
-        <div class="session-card">
-          <h3 class="card-header flex justify-between items-center">
-            <SkeletonBlock height="h-6 w-48" />
-            <SkeletonBlock height="h-4 w-24" />
-          </h3>
-          <div class="card-content">
-            <SkeletonBlock height="h-16 w-full mb-4" />
-            <div class="flex justify-between items-center">
-              <SkeletonBlock height="h-4 w-64" />
-              <SkeletonBlock height="h-8 w-24" />
             </div>
           </div>
         </div>
@@ -178,48 +174,11 @@ const navigateToJournal = (pageId: string) => {
         </div>
       </section>
 
-      <!-- Recent Sessions Section -->
-      <section class="recent-sessions nier-section">
-        <h2 class="section-header">Recent Sessions</h2>
-        <div class="space-y-4">
-          <div class="session-card">
-            <h3 class="card-header flex justify-between items-center">
-              <span>Timeline {{ lastSession.leap }} • Day {{ lastSession.day }}</span>
-              <span class="text-sm">{{ lastSession.date }}</span>
-            </h3>
-            <div class="card-content">
-              <p class="text-sm mb-2 opacity-80">
-                {{ lastSession.summary }}
-              </p>
-              <div class="flex justify-between items-center">
-                <div class="text-sm opacity-70">
-                  Characters: {{ lastSession.characters.join(', ') }}
-                </div>
-                <button 
-                  class="nier-button-small"
-                  @click="navigateToJournal(lastSession.pageId)"
-                >
-                  Read more...
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- Active Quests Section -->
-      <section class="quests nier-section">
+      <section class="quests nier-section" v-if="quests">
         <h2 class="section-header">Active Quests</h2>
         <div class="space-y-2">
-          <div class="quest-item">
-            <h3 class="card-header">Find SPIRIT</h3>
-            <div class="card-content">
-              <p class="text-sm opacity-80 text-nier-warning">[NO DATA]</p>
-              <div class="flex items-center mt-1">
-                <span class="text-xs px-2 py-1 bg-nier-primary text-nier-secondary">In Progress</span>
-              </div>
-            </div>
-          </div>
+          <QuestContainer v-for="quest in quests" :key="quest.id" :quest="quest" />
         </div>
       </section>
     </template>
@@ -227,7 +186,7 @@ const navigateToJournal = (pageId: string) => {
 </template>
 
 <style scoped>
-.stats-card, .session-card, .quest-item {
+.stats-card, .session-card {
   position: relative;
   border: 1px solid #454138;
 }

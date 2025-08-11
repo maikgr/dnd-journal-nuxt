@@ -3,5 +3,7 @@ export const CACHE_KEY = {
     CHARACTERS: 'characters',
     NPCS: 'npcs',
     LOCATIONS: 'locations',
-    ENTITY_ALIAS: 'entity-alias'
+    ENTITY_ALIAS: 'entity-alias',
+    QUESTS: 'quests',
+    QUEST_FACTS: 'quest-facts'
   }

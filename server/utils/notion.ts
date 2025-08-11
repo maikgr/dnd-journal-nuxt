@@ -402,3 +402,75 @@ export const getEntityAlias = async () => {
     })
   }
 }
+
+export const getQuests = async () => {
+  const notion = getNotionClient()
+  const config = useRuntimeConfig()
+  
+  try {
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.QUESTS)
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data
+    }
+
+    const response = await notion.databases.query({
+      database_id: config.notionQuestsDatabaseId,
+    })
+
+    const cacheEntry: CacheEntry<any[]> = {
+      data: response.results,
+      timestamp: Date.now()
+    }
+    await storage.setItem(CACHE_KEY.QUESTS, cacheEntry)
+
+    return response.results
+  } catch (error) {
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.QUESTS)
+    if (cached) {
+      console.warn('Using cached data for quests due to Notion API error')
+      return cached.data
+    }
+
+    console.error('Error fetching quests:', error)
+    throw createError({
+      statusCode: 500,
+      message: 'Failed to fetch quests database'
+    })
+  }
+}
+
+export const getQuestFacts = async () => {
+  const notion = getNotionClient()
+  const config = useRuntimeConfig()
+
+  try {
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.QUEST_FACTS)
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data
+    }
+
+    const response = await notion.databases.query({
+      database_id: config.notionQuestFactsDatabaseId,
+    })
+
+    const cacheEntry: CacheEntry<any[]> = {
+      data: response.results,
+      timestamp: Date.now()
+    }
+    await storage.setItem(CACHE_KEY.QUEST_FACTS, cacheEntry)
+
+    return response.results
+  } catch (error) {
+    const cached = await storage.getItem<CacheEntry<any[]>>(CACHE_KEY.QUEST_FACTS)
+    if (cached) {
+      console.warn('Using cached data for quest facts due to Notion API error')
+      return cached.data
+    }
+
+    console.error('Error fetching quest facts:', error)
+    throw createError({
+      statusCode: 500,
+      message: 'Failed to fetch quest facts database'
+    })
+  }
+}

@@ -35,6 +35,8 @@ export default defineNuxtConfig({
     notionNpcPageId: process.env.NOTION_NPC_PAGE_ID,
     notionLocationDatabaseId: process.env.NOTION_LOCATION_DATABASE_ID,
     notionEntityAliasDatabaseId: process.env.NOTION_ENTITY_ALIAS_DATABASE_ID,
+    notionQuestsDatabaseId: process.env.NOTION_QUESTS_DATABASE_ID,
+    notionQuestFactsDatabaseId: process.env.NOTION_QUESTFACTS_DATABASE_ID,
     public: {
       // Public runtime config goes here
     }
